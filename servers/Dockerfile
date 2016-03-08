@@ -24,7 +24,8 @@ RUN echo $(service mysql status)
 RUN pip install -r /opt/Monitoring/requirements.txt && \
 service mysql restart && \
 python /opt/Monitoring/manager/manage.py makemigrations && \
-python /opt/Monitoring/manager/manage.py migrate
+python /opt/Monitoring/manager/manage.py migrate && \
+echo "from django.contrib.auth.models import User; User.objects.create_superuser('user', 'user@mail.com', 'sonat@')" | python /opt/Monitoring/manager/manage.py shell
 
 ADD run.sh /opt/Monitoring/run.sh
 RUN chmod 0755 /opt/Monitoring/run.sh
