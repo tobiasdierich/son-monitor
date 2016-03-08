@@ -1,0 +1,13 @@
+global:
+  evaluation_interval: 15s
+  external_labels: {monitor: panamax-monitor}
+  scrape_interval: 15s
+rule_files: [/home/ubuntu/prometheus-0.16.1.linux-amd64/alert.rules]
+scrape_configs:
+- job_name: panamax
+  scrape_interval: 5s
+  scrape_timeout: 10s
+  target_groups:
+  - labels: {group: development}
+    targets: ['192.168.1.89:8080', '192.168.1.46:9100', '192.168.1.70:9091', '192.168.1.39:9100',
+      '192.168.1.39:9090']

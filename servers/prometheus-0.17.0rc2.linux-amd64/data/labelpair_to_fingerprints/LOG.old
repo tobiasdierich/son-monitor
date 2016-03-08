@@ -1,0 +1,9 @@
+=============== Mar 1, 2016 (EET) ===============
+21:08:49.725399 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+21:08:49.725475 db@open opening
+21:08:49.725511 journal@recovery F·1
+21:08:49.726895 journal@recovery recovering @44
+21:08:49.728612 db@janitor F·3 G·0
+21:08:49.728632 db@open done T·3.147815ms
+21:11:10.022162 db@close closing
+21:11:10.022198 db@close done T·35.728µs
