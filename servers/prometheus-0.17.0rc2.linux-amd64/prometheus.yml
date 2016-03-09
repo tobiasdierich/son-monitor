@@ -2,8 +2,7 @@ global:
   evaluation_interval: 15s
   external_labels: {monitor: panamax-monitor}
   scrape_interval: 15s
-rule_files: [/home/panos/NetBeansProjects/sonataDev/MonitoringSrv/prometheus-0.17.0rc2.linux-amd64/rules/alert.rules,
-  /home/panos/NetBeansProjects/sonataDev/MonitoringSrv/prometheus-0.17.0rc2.linux-amd64/rules/NS777777.rules]
+rule_files: [/opt/Monitoring/MonitoringSrv/prometheus-0.17.0rc2.linux-amd64/rules/alert.rules]
 scrape_configs:
 - job_name: panamax
   scrape_interval: 5s
@@ -12,3 +11,4 @@ scrape_configs:
   - labels: {group: development}
     targets: ['192.168.1.89:8080', '192.168.1.46:9100', '192.168.1.70:9091', '192.168.1.39:9100',
       '192.168.1.39:9090']
+

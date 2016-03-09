@@ -20,7 +20,7 @@ class RuleFile(object):
         body = ''
         for r in self.rules:
             body += self.buildRule(r)
-        filename = "".join(('/home/panos/NetBeansProjects/sonataDev/MonitoringSrv/prometheus-0.17.0rc2.linux-amd64/rules/',self.serviceID, '.rules'))
+        filename = "".join(('/opt/Monitoring/prometheus-0.17.0rc2.linux-amd64/rules/',self.serviceID, '.rules'))
 
         with open(filename, 'w') as outfile:
             outfile.write(body)
@@ -29,21 +29,21 @@ class RuleFile(object):
         if self.validate(filename) == 0:
             print "RuleFile created SUCCESSFULLY"
             #add file to conf file
-            with open('../prometheus-0.17.0rc2.linux-amd64/prometheus.yml', 'r') as conf_file:
+            with open('/opt/Monitoring/prometheus-0.17.0rc2.linux-amd64/prometheus.yml', 'r') as conf_file:
                 conf = yaml.load(conf_file)
                 for rf in conf['rule_files']:
                     if filename in rf:
                         return
                 conf['rule_files'].append(filename)
                 print conf['rule_files']
-                with open('../prometheus-0.17.0rc2.linux-amd64/prometheus.yml', 'w') as yml:
+                with open('/opt/Monitoring/prometheus-0.17.0rc2.linux-amd64/prometheus.yml', 'w') as yml:
                     yaml.safe_dump(conf, yml)
                 self.reloadServer()
                 
             #reload conf
 
     def validate(self,file):
-        p = subprocess.Popen(['./promtool', 'check-rules', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(['/opt/Monitoring/manager/promtool', 'check-rules', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, status = p.communicate()
         print status
         rc = p.returncode
