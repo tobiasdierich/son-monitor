@@ -3,6 +3,7 @@ This class creates new rule file for each Sonata Service and include it to Prome
 '''
 import json, yaml, httplib, subprocess, time
 
+
 class RuleFile(object):
 
     def __init__(self, serviceID, rules):
@@ -66,16 +67,12 @@ class RuleFile(object):
 
 
 class ProData(object):
-    # curl 'http://83.235.169.221:8080/api/v1/label/__name__/values?_=1456903913'
-    # curl 'http://83.235.169.221:8080/api/v1/query_range?query=prometheus_data_size&start=2016-02-01T20:10:30.786Z&end=2016-02-28T20:11:00.781Z&step=1h'
 
     def __init__(self, srv_addr_, srv_port_):
         self.srv_addr = srv_addr_
         self.srv_port = srv_port_
 
     def getMetrics(self):
-        # curl 'http://83.235.169.221:8080/api/v1/label/__name__/values?_=1456903913'
-        # curl 'http://83.235.169.221:8080/api/v1/query_range?query=prometheus_data_size&start=2016-02-01T20:10:30.786Z&end=2016-02-28T20:11:00.781Z&step=1h'
         now = int(time.time())
         path = "".join(("/api/v1/label/__name__/values?_=", str(now)))
         d = self.HttpGet(self.srv_addr,self.srv_port,path)
