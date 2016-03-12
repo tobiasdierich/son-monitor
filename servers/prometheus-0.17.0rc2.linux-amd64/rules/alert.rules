@@ -1,0 +1,61 @@
+### alert.rules ###
+
+# Alert for any instance that is unreachable for >5 minutes.
+#ALERT pmx_down
+#  IF up == 0
+#  FOR 5m
+#  WITH {}
+#  SUMMARY "Instance {{$labels.instance}} down"
+#  DESCRIPTION "{{$labels.instance}} of job {{$labels.job}} has been down for more than 5 minutes."
+
+
+
+ALERT HighMemoryAlert
+  IF container_memory_usage_bytes > 20000000
+  FOR 1m
+  LABELS {id = "/docker/"}
+  ANNOTATIONS { 
+    summary = "High Memory usage for Ubuntu container",
+    description = "High Memory usage for Ubuntu container on {{$labels.instance}} for container {{$labels.name}} (current value: {{$value}})"
+  }
+
+
+ALERT node_cpu_seconds
+  IF node_cpu{mode="user"} > 50
+  FOR 1m
+  LABELS { mode="user" }
+  ANNOTATIONS { 
+    summary = "Seconds the cpus spent in each mode",
+    description = "Seconds the cpus spent on user for node {{$labels.instance}}  {{$labels.cpu}} (current value: {{$value}})"
+  }
+  
+
+ALERT memory_usage
+  IF (node_memory_MemTotal - node_memory_MemFree)/node_memory_MemTotal > 0.75
+  FOR 1m
+  LABELS { }
+  ANNOTATIONS { 
+    summary = "Memory Usage alert ",
+    description = "Memory usage warning for node {{$labels.instance}} (current value: {{$value}})"
+  }
+
+
+ALERT OpenStack_memory_usage
+  IF (totalRAMUsed)/maxTotalRAMSize > 0.75
+  FOR 1m
+  LABELS {}
+  ANNOTATIONS { 
+    summary = "OpenStack RAM Memory Usage alert ",
+    description = "Memory usage warning for Openstack node {{$labels.instance}} (current value: {{$value}})"
+  }
+
+
+ALERT Port_received_drops
+  IF port_receive_drops > 0.0
+  FOR 1m
+  LABELS {}
+  ANNOTATIONS { 
+    summary = "Drops per ports",
+    description = "Drops per ports {{$labels.instance}} (current value: {{$value}})"
+  }
+  
