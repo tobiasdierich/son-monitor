@@ -1,0 +1,38 @@
+version: '2'
+services:
+
+ influx:
+  build: ./influxDB
+  restart: always
+  ports:
+   - "8087:8086"
+
+ mysql:
+  build: ./mysql
+  restart: always
+  ports:
+   - 3306
+
+ pushgateway:
+  build: ./pushgateway
+  restart: always
+  ports:
+   - "9091:9091"
+
+ prometheus:
+  build: ./prometheus
+  restart: always
+  ports:
+   - "9090:9090"
+  depends_on:
+   - pushgateway
+   - influx
+
+ manager:
+  build: ./manager
+  restart: unless-stopped
+  ports:
+   - "8000:8000"
+  depends_on:
+   - mysql
+

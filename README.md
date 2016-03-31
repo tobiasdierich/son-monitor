@@ -9,6 +9,7 @@ Sonata's monitoring system gathers, analyzes performance information from NS/VNF
  * django-rest-multiple-models==1.6.3
  * django-rest-swagger==0.3.5
  * djangorestframework==3.3.2
+ * django-cors-headers==1.1.0
  * Markdown==2.6.5
  * mysqlclient==1.3.7
  * Pygments==2.1.1
@@ -17,14 +18,9 @@ Sonata's monitoring system gathers, analyzes performance information from NS/VNF
 
 ### Docker support
 
-Build Docker container image
+Run Docker compose
 ```
-sudo docker build -t sonata-monitoring .
-```
-
-Run Docker container
-```
-sudo docker run -d -p 8000:80 sonata-monitoring
+sudo docker-compose up
 ```
 
 ###Lead Developers
