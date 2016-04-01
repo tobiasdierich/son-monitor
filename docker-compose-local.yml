@@ -2,25 +2,25 @@ version: '2'
 services:
 
  influx:
-  image: registry.sonata-nfv.eu:5000/son-monitor-influxDB
+  build: ./influxDB
   restart: always
   ports:
    - "8087:8086"
 
  mysql:
-  image: registry.sonata-nfv.eu:5000/son-monitor-mysql
+  build: ./mysql
   restart: always
   ports:
    - 3306
 
  pushgateway:
-  image: registry.sonata-nfv.eu:5000/son-monitor-pushgateway
+  build: ./pushgateway
   restart: always
   ports:
    - "9091:9091"
 
  prometheus:
-  image: registry.sonata-nfv.eu:5000/son-monitor-prometheus
+  build: ./prometheus
   restart: always
   ports:
    - "9090:9090"
@@ -29,9 +29,10 @@ services:
    - influx
 
  manager:
-  image: registry.sonata-nfv.eu:5000/son-monitor-manager
+  build: ./manager
   restart: unless-stopped
   ports:
    - "8000:8000"
   depends_on:
    - mysql
+
