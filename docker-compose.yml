@@ -2,7 +2,7 @@ version: '2'
 services:
 
  influx:
-  image: registry.sonata-nfv.eu:5000/son-monitor-influxDB
+  image: registry.sonata-nfv.eu:5000/son-monitor-influxdb
   restart: always
   ports:
    - "8087:8086"
