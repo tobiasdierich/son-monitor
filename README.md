@@ -3,7 +3,7 @@ Sonata's monitoring system gathers, analyzes performance information from NS/VNF
 
 
 ### Dependencies
-
+ * Docker compose
  * Django==1.9.2
  * django-filter==0.12.0
  * django-rest-multiple-models==1.6.3
