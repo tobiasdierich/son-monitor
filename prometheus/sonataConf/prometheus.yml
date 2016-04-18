@@ -9,4 +9,4 @@ scrape_configs:
   scrape_timeout: 5s
   target_groups:
   - labels: {group: development}
-    targets: ['192.168.1.89:8080', '192.168.1.46:9100', '192.168.1.70:9091', '192.168.1.39:9100','192.168.1.39:9090', 'pushgateway:9091']
+    targets: ['pushgateway:9091']
