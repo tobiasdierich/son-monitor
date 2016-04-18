@@ -106,7 +106,7 @@ class SntMetricsPerFunctionList1(generics.ListAPIView):
         queryset = monitoring_metrics.objects.all().filter(function_id=functionid)
         dictionaries = [ obj.as_dict() for obj in queryset ]
         response = {}
-        response['data_server_url']='http://sp.int.sonata-nfv.eu:9091'
+        response['data_server_url']='http://sp.int2.sonata-nfv.eu:9091'
         response['metrics'] = dictionaries
         return Response(response)
 
