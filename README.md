@@ -1,4 +1,4 @@
-# son-monitor
+# son-monitor [![Build Status](http://jenkins.sonata-nfv.eu/buildStatus/icon?job=son-monitor)](http://jenkins.sonata-nfv.eu/job/son-monitor)
 Sonata's monitoring system gathers, analyzes performance information from NS/VNF and provides alarm notifications, based on alarm definitions which have been defined from the users. The architecture of the system is based on data exporters and a monitoring server. Data exporters sends monitoring data from NS/VNFs to monitoring server which collects, analyses, stores data and generates the appropriate notifications. In generally monitoring server consisting of a rest api interface, an alerting mechanism (based on prometheus.io), a timeseries DB and a real time notification service.
 
 ### Dependencies
