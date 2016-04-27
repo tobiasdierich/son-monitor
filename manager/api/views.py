@@ -106,7 +106,7 @@ class SntMetricsPerFunctionList1(generics.ListAPIView):
         queryset = monitoring_metrics.objects.all().filter(function_id=functionid)
         dictionaries = [ obj.as_dict() for obj in queryset ]
         response = {}
-        response['data_server_url']='156.12.23.5.6:8080'
+        response['data_server_url']='http://sp.int2.sonata-nfv.eu:9091'
         response['metrics'] = dictionaries
         return Response(response)
 
@@ -184,7 +184,7 @@ class SntRulesDetail(generics.RetrieveUpdateDestroyAPIView):
 class SntPromMetricList(generics.RetrieveAPIView):
     serializer_class = promMetricsListSerializer
     def get(self, request, *args, **kwargs):
-        mt = ProData('localhost',9090)
+        mt = ProData('prometheus',9090)
         data = mt.getMetrics()
         response = {}
         response['metrics'] = data['data']
@@ -203,7 +203,7 @@ class SntPromMetricData(generics.CreateAPIView):
     }
     '''
     def post(self, request, *args, **kwargs):
-        mt = ProData('localhost',9090)
+        mt = ProData('prometheus',9090)
         data = mt.getTimeRangeData(request.data)
         response = {}
         #print data
