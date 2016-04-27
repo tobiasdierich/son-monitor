@@ -17,28 +17,28 @@ class SntServicesSerializer(serializers.ModelSerializer):
     #user = SntUserSerializer()
     class Meta:
         model = monitoring_services
-        fields = ('id', 'sonata_srv_id', 'name', 'description', 'created', 'user', 'host_id','pop_id')
+        fields = ('id', 'sonata_srv_id', 'name', 'description', 'created', 'user', 'host_id')
 
 class SntServicesFullSerializer(serializers.ModelSerializer):
     #user = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_users.objects.all())
     user = SntUserSerializer()
     class Meta:
         model = monitoring_services
-        fields = ('id', 'sonata_srv_id', 'name', 'description', 'created', 'user', 'host_id','pop_id')
+        fields = ('id', 'sonata_srv_id', 'name', 'description', 'created', 'user', 'host_id')
 
 class SntFunctionsSerializer(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
     #service = SntServicesSerializer()
     class Meta:
         model = monitoring_functions
-        fields = ('id', 'sonata_func_id', 'name', 'description', 'created', 'service', 'host_id','pop_id')
+        fields = ('id', 'sonata_func_id', 'name', 'description', 'created', 'service', 'host_id')
 
 class SntFunctionsFullSerializer(serializers.ModelSerializer):
     #service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
     service = SntServicesSerializer()
     class Meta:
         model = monitoring_functions
-        fields = ('id', 'sonata_func_id', 'name', 'description', 'created', 'service', 'host_id', 'pop_id')
+        fields = ('id', 'sonata_func_id', 'name', 'description', 'created', 'service', 'host_id')
 
 class SntMetricsSerializer(serializers.ModelSerializer):
     #function = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_functions.objects.all())
@@ -52,7 +52,7 @@ class SntNewMetricsSerializer(serializers.ModelSerializer):
     #function = SntFunctionsSerializer()
     class Meta:
         model = monitoring_metrics
-        fields = ('name', 'description', 'threshold', 'interval','cmd', 'function', 'created')
+        fields = ('name', 'description', 'threshold', 'interval','cmd', 'function', 'created',)
 
 class SntMetricsFullSerializer(serializers.ModelSerializer):
     #function = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_functions.objects.all())
@@ -87,7 +87,7 @@ class SntNewFunctionsSerializer(serializers.ModelSerializer):
     metrics = SntNewMetricsSerializer(many=True)
     class Meta:
         model = monitoring_functions
-        fields = ('sonata_func_id', 'name', 'description', 'created', 'host_id', 'pop_id', 'metrics')
+        fields = ('sonata_func_id', 'name', 'description', 'created', 'host_id', 'metrics',)
 
 class SntNewRulesSerializer(serializers.ModelSerializer):
     #service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())

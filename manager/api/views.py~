@@ -164,8 +164,8 @@ class SntNewServiceConf(generics.CreateAPIView):
                 rule = monitoring_rules(service=srv, summary=r['summary'] ,notification_type=nt[0], name=r['name'] ,condition=r['condition'] ,duration=r['duration'] ,description=r['description'] )
                 rule.save()
 
-        #if len(rules) > 0:
-            #rf = RuleFile(service['sonata_srv_id'],rules) 
+        if len(rules) > 0:
+            rf = RuleFile(service['sonata_srv_id'],rules) 
             #rf.writeFile();
         return Response({'status':"success"})
 
