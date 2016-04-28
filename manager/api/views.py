@@ -21,6 +21,7 @@ from django.forms.models import model_to_dict
 import json
 from drf_multiple_model.views import MultipleModelAPIView
 
+
 # Create your views here.
 
 
@@ -101,7 +102,6 @@ class SntMetricsPerFunctionList(generics.ListAPIView):
 class SntMetricsPerFunctionList1(generics.ListAPIView):
     #queryset = monitoring_metrics.objects.all()
     def list(self, request, *args, **kwargs):
-        
         functionid  = kwargs['funcID']
         queryset = monitoring_metrics.objects.all().filter(function_id=functionid)
         dictionaries = [ obj.as_dict() for obj in queryset ]
@@ -130,8 +130,16 @@ class SntNewServiceConf(generics.CreateAPIView):
         
         s = monitoring_services.objects.all().filter(sonata_srv_id=service['sonata_srv_id'])
         if s.count() > 0:
-            s.delete()    
-        srv = monitoring_services(sonata_srv_id=service['sonata_srv_id'], name=service['name'], description=service['description'], host_id=service['host_id'], user=usr)
+            s.delete()
+
+        srv_pop_id = ''
+        srv_host_id = ''
+        if 'pop_id' in service: 
+            srv_pop_id = service['pop_id']
+        if 'host_id' in service: 
+            srv_host_id = service['host_id']
+        print srv_host_id +' '+srv_pop_id
+        srv = monitoring_services(sonata_srv_id=service['sonata_srv_id'], name=service['name'], description=service['description'], host_id=srv_host_id, user=usr, pop_id=srv_pop_id)
         srv.save()
         print srv
         #m = monitoring_functions.objects.all().filter(service=srv)
@@ -139,7 +147,8 @@ class SntNewServiceConf(generics.CreateAPIView):
         #    m.delete()
          #   print 'Functions Cleared'
         for f in functions:
-            func = monitoring_functions(service=srv ,host_id=f['host_id'] ,name=f['name'] , sonata_func_id=f['sonata_func_id'] , description=f['description'])
+            print f['pop_id']
+            func = monitoring_functions(service=srv ,host_id=f['host_id'] ,name=f['name'] , sonata_func_id=f['sonata_func_id'] , description=f['description'], pop_id=f['pop_id'])
             func.save()
             for m in f['metrics']:
                 metric = monitoring_metrics(function=func ,name=m['name'] ,cmd=m['cmd'] ,threshold=m['threshold'] ,interval=m['interval'] ,description=m['description'])
@@ -155,9 +164,9 @@ class SntNewServiceConf(generics.CreateAPIView):
                 rule = monitoring_rules(service=srv, summary=r['summary'] ,notification_type=nt[0], name=r['name'] ,condition=r['condition'] ,duration=r['duration'] ,description=r['description'] )
                 rule.save()
 
-        if len(rules) > 0:
-            rf = RuleFile(service['sonata_srv_id'],rules) 
-            rf.writeFile();
+        #if len(rules) > 0:
+            #rf = RuleFile(service['sonata_srv_id'],rules) 
+            #rf.writeFile();
         return Response({'status':"success"})
 
 class SntMetricsDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -235,7 +244,7 @@ class TestList(generics.ListCreateAPIView):
 class TestDetail(generics.RetrieveUpdateDestroyAPIView):
     #permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
     queryset = test_tb.objects.all()
-    serializer_class = TestTBSerializer
+    serializer_cProDatalass = TestTBSerializer
 
 
 
@@ -349,4 +358,5 @@ def test_detail(request, pk, format=None):
        	return Response(status=status.HTTP_204_NO_CONTENT)
 
 """
+
 

@@ -32,6 +32,7 @@ class monitoring_users(models.Model):
 
 class monitoring_services(models.Model):
     user = models.ForeignKey(monitoring_users)
+    pop_id = models.CharField(max_length=30, blank=True)
     host_id = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=30, blank=True)
     sonata_srv_id = models.CharField(max_length=30, blank=True)
@@ -49,6 +50,7 @@ class monitoring_services(models.Model):
 
 class monitoring_functions(models.Model):
     service = models.ForeignKey(monitoring_services)
+    pop_id = models.CharField(max_length=30, blank=True)
     host_id = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=30, blank=True)
     sonata_func_id = models.CharField(max_length=30, blank=True)
