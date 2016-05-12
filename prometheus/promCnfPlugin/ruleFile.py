@@ -2,10 +2,10 @@ import json, yaml, httplib, subprocess, time
 
 class fileBuilder(object):
 
-    def __init__(self, serviceID, rules):
+    def __init__(self, serviceID, rules, path):
         self.serviceID = serviceID
         self.rules = rules
-        self.prometheusPth = '/opt/Monitoring/prometheus/'
+        self.prometheusPth = path
 
     def relaodConf(self):
         print 'reload....'
@@ -32,7 +32,7 @@ class fileBuilder(object):
                 for rf in conf['rule_files']:
                     if filename in rf:
                         self.reloadServer()
-                        return "RuleFile updated SUCCESSFULLY - SERVER Reloaded"
+                        return "RuleFile updated SUCCESSFULY - SERVER Reloaded"
                 conf['rule_files'].append(filename)
                 print conf['rule_files']
                 with open(self.prometheusPth+'prometheus.yml', 'w') as yml:

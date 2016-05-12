@@ -9,20 +9,79 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    return "Hello, I love Digital Ocean!"
+    urls =  "/prometheus/rules " +'/n'+
+	    "/prometheus/rules/<srv_id>"+'/n'+
+	    "/prometheus/configuration"
+    return urls
 
 
-@app.route('/prometheus/alerts', methods = ['GET', 'POST', 'PUT'])
-def api_alerts():
+'''
+{"service":"NF777777","rules":[{"description": "Rule_#1", "summary": "Rule combines two metrics", "duration": "4m", "notification_type": 2, "condition": "metric1 - metric2 > 0.25", "name": "Rule 1", "labels":["id = docker","mode = user"]},{"description": "Rule_#2", "summary": "Rule combines two other metrics", "duration": "4m", "notification_type": 2, "condition": "metric3 - metric4 > 0.25", "name": "Rule 2", "labels":["id = docker","mode = user1"]}]}
+'''
+@app.route('/prometheus/rules', methods = ['POST'])
+def api_rules():
     if request.method == 'POST':
         conf = json.loads(request.data)
         srv_id = conf['service']
-        rf = fileBuilder(srv_id, conf['rules']) 
-        status = rf.writeFile();
-        
-        return ''+status
+        rf = fileBuilder(srv_id, conf['rules'], promPath)
+	status = rf.writeFile();
+	message = {
+                'status': 200,
+                'message': status,
+            } 
+        return jsonify(message)
+    elif request.method == 'GET':    
+        return '(GET) get alert for '
     elif request.method == 'PUT':    
         return '(PUT) get alert for '
+
+@app.route('/prometheus/rules/<srv_id>', methods = ['GET','DELETE'])
+def api_rules_per_srv(srv_id):
+    if request.method == 'DELETE':
+        fname = promPath+'rules/'+srv_id.strip()+'.rules'
+        if os.path.isfile(fname):
+            os.remove(fname)
+            with open(promPath+'prometheus.yml', 'r') as conf_file:
+                conf = yaml.load(conf_file)
+                for rf in conf['rule_files']:
+                    if fname in rf:
+                        conf['rule_files'].remove(rf)
+                        with open(promPath+'prometheus.yml', 'w') as yml:
+                            yaml.safe_dump(conf, yml)
+            message = {
+                'status': 200,
+                'message': 'File DELETED (' +fname+')',
+            }
+        else:
+            message = {
+                'status': 200,
+                'message': 'File NOT FOUND (' +fname+')',
+            }
+        return jsonify(message)
+    elif request.method == 'GET':
+        fname = promPath+'rules/'+srv_id.strip()+'.rules'
+        if os.path.isfile(fname):
+            with open(fname, 'r') as conf_file:
+                conf = yaml.load(conf_file)
+                js_obj = json.dumps(conf)
+            return js_obj
+        else:
+            message = {
+                'status': 200,
+                'message': 'File ' +fname+' not found',
+            }
+            return jsonify(message)
+    
+@app.route('/prometheus/configuration', methods = ['GET', 'POST'])
+def api_conf():
+    if request.method == 'GET':
+        with open(promPath+'prometheus.yml', 'r') as conf_file:
+            conf = yaml.load(conf_file)
+            js_obj = json.dumps(conf)
+            print(js_obj)
+        return js_obj
+    elif request.method == 'POST':    
+        return 'Not supported yet'
     
 
 
@@ -42,6 +101,8 @@ def not_found(error=None):
 
 
 if __name__ == "__main__":
+    global promPath 
+    promPath = '/opt/Monitoring/prometheus/'
     global logger
     logger = logging.getLogger('MyLogger')
     logger.setLevel(logging.DEBUG)
