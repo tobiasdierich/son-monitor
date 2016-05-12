@@ -1,4 +1,4 @@
-import logging, logging.handlers, sys, yaml, os.path
+import logging, logging.handlers, sys, yaml, os.path, httplib
 from flask import json,request,Flask, url_for,jsonify
 from functools import wraps
 from ruleFile import fileBuilder
@@ -7,6 +7,9 @@ __author__="panos"
 __date__ ="$Feb 28, 2016 3:32:07 PM$"
 
 app = Flask(__name__)
+
+global promPath 
+promPath = '/opt/Monitoring/prometheus/'
 
 @app.route("/")
 def hello():
@@ -47,6 +50,8 @@ def api_rules_per_srv(srv_id):
                         conf['rule_files'].remove(rf)
                         with open(promPath+'prometheus.yml', 'w') as yml:
                             yaml.safe_dump(conf, yml)
+			continue
+	    reloadServer()
             message = {
                 'status': 200,
                 'message': 'File DELETED (' +fname+')',
@@ -95,6 +100,12 @@ def not_found(error=None):
 
     return resp
 
+def reloadServer():
+    httpServ = httplib.HTTPConnection("localhost", 9090)
+    httpServ.connect()
+    httpServ.request("POST", "/-/reload")
+    response = httpServ.getresponse()
+    httpServ.close()
 
 
 
