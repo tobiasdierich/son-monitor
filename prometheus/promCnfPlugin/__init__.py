@@ -10,9 +10,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    urls =  "/prometheus/rules " +'/n'+
-	    "/prometheus/rules/<srv_id>"+'/n'+
-	    "/prometheus/configuration"
+    urls =  "I am alive..."
     return urls
 
 
