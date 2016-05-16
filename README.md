@@ -28,4 +28,3 @@ The following lead developers are responsible for this repository and have admin
 
  * Panos Trakadas (trakadasp)
  * Panos Karkazis (pkarkazis)
-
