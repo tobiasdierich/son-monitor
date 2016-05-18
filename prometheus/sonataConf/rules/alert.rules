@@ -4,7 +4,7 @@ ALERT HighMemoryAlert
   LABELS {id = "/docker/"}
   ANNOTATIONS { 
     summary = "High Memory usage for Ubuntu container",
-    description = "High Memory usage for Ubuntu container on {{$labels.instance}} for container {{$labels.name}} (current value: {{$value}})"
+    description = "High Memory usage for Ubuntu container on {{$labels.instance}} for container {{$labels.name}} (current value {{$value}})"
   }
 
 
@@ -14,7 +14,7 @@ ALERT node_cpu_seconds
   LABELS { mode="user" }
   ANNOTATIONS { 
     summary = "Seconds the cpus spent in each mode",
-    description = "Seconds the cpus spent on user for node {{$labels.instance}}  {{$labels.cpu}} (current value: {{$value}})"
+    description = "Seconds the cpus spent on user for node {{$labels.instance}}  {{$labels.cpu}} (current value {{$value}})"
   }
   
 
@@ -24,7 +24,7 @@ ALERT memory_usage
   LABELS { }
   ANNOTATIONS { 
     summary = "Memory Usage alert ",
-    description = "Memory usage warning for node {{$labels.instance}} (current value: {{$value}})"
+    description = "Memory usage warning for node {{$labels.instance}} (current value {{$value}})"
   }
 
 
@@ -34,7 +34,7 @@ ALERT OpenStack_memory_usage
   LABELS {}
   ANNOTATIONS { 
     summary = "OpenStack RAM Memory Usage alert ",
-    description = "Memory usage warning for Openstack node {{$labels.instance}} (current value: {{$value}})"
+    description = "Memory usage warning for Openstack node {{$labels.instance}} (current value {{$value}})"
   }
 
 
@@ -44,5 +44,5 @@ ALERT Port_received_drops
   LABELS {}
   ANNOTATIONS { 
     summary = "Drops per ports",
-    description = "Drops per ports {{$labels.instance}} (current value: {{$value}})"
+    description = "Drops per ports {{$labels.instance}} (current value {{$value}})"
   }
