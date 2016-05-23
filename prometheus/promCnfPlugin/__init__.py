@@ -35,8 +35,8 @@ def api_rules():
             resp.status_code = 500
             return resp
         rf = fileBuilder(srv_id, conf['rules'], promPath)
-    status = rf.writeFile();
-    message = {
+        status = rf.writeFile();
+        message = {
                 'status': 200,
                 'message': status,
             } 
@@ -61,8 +61,8 @@ def api_rules_per_srv(srv_id):
                         conf['rule_files'].remove(rf)
                         with open(promPath+'prometheus.yml', 'w') as yml:
                             yaml.safe_dump(conf, yml)
-			continue
-	    reloadServer()
+                        continue
+	        reloadServer()
             message = {
                 'status': 200,
                 'message': 'File DELETED (' +fname+')',

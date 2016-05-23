@@ -10,7 +10,7 @@ class fileBuilder(object):
     def relaodConf(self):
         print 'reload....'
 
-     def buildRule(self, rule):
+    def buildRule(self, rule):
         labels =''
         rule['name'] = rule['name'].replace(':','_')
         for lb in rule['labels']:
