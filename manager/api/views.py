@@ -133,7 +133,7 @@ class SntNewServiceConf(generics.CreateAPIView):
         if s.count() > 0:
             s.delete()
     
-    srv_pop_id = ''
+        srv_pop_id = ''
         srv_host_id = ''
         if service['pop_id']: 
             srv_pop_id = service['pop_id']
