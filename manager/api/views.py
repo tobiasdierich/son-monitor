@@ -164,7 +164,7 @@ class SntNewServiceConf(generics.CreateAPIView):
                 rule.save()
                 rl = {}
                 rl['name'] = r['name']
-        rl['description'] = r['description']
+                rl['description'] = r['description']
                 rl['summary'] = r['summary']
                 rl['duration'] = r['duration']
                 rl['notification_type'] = r['notification_type']
@@ -174,7 +174,7 @@ class SntNewServiceConf(generics.CreateAPIView):
 
         if len(rules) > 0:
             cl = Http()
-        rsp = cl.POST('http://prometheus:9089/prometheus/rules',[],json.dumps(rls))            
+            rsp = cl.POST('http://prometheus:9089/prometheus/rules',[],json.dumps(rls))            
             if rsp == 200:
                 return Response({'status':"success"})
             else:
