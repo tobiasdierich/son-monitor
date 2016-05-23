@@ -7,6 +7,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
 from pygments import highlight
 from datetime import datetime
+from django.utils import timezone
 
 # Create your models here.
 LEXERS = [item for item in get_all_lexers() if item[1]]
@@ -20,29 +21,29 @@ class monitoring_users(models.Model):
     last_name = models.CharField(max_length=30, blank=True)
     email = models.EmailField(blank=True)
     sonata_userid = models.CharField(max_length=60)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(default=timezone.now)
 
     class Meta:
-		db_table = "monitoring_users"
-		ordering = ('created',)
-		managed = True
+        db_table = "monitoring_users"
+        ordering = ('created',)
+        managed = True
 
     def __unicode__(self):
         return u'%s %s %s' % (self.first_name, self.last_name, self.sonata_userid)
 
 class monitoring_services(models.Model):
     user = models.ForeignKey(monitoring_users)
-    pop_id = models.CharField(max_length=30, blank=True)
-    host_id = models.CharField(max_length=30, blank=True)
+    pop_id = models.CharField(max_length=60, blank=True)
+    host_id = models.CharField(max_length=60, blank=True)
     name = models.CharField(max_length=30, blank=True)
-    sonata_srv_id = models.CharField(max_length=30, blank=True)
+    sonata_srv_id = models.CharField(max_length=60, blank=True)
     description = models.CharField(max_length=1024)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(default=timezone.now)
 
     class Meta:
-		db_table = "monitoring_services"
-		ordering = ('created',)
-		managed = True
+        db_table = "monitoring_services"
+        ordering = ('created',)
+        managed = True
 
     def __unicode__(self):
         return u'%s %s %s' % (self.name, self.description, self.sonata_srv_id)
@@ -50,12 +51,12 @@ class monitoring_services(models.Model):
 
 class monitoring_functions(models.Model):
     service = models.ForeignKey(monitoring_services)
-    pop_id = models.CharField(max_length=30, blank=True)
-    host_id = models.CharField(max_length=30, blank=True)
+    pop_id = models.CharField(max_length=60, blank=True)
+    host_id = models.CharField(max_length=60, blank=True)
     name = models.CharField(max_length=30, blank=True)
-    sonata_func_id = models.CharField(max_length=30, blank=True)
+    sonata_func_id = models.CharField(max_length=60, blank=True)
     description = models.CharField(max_length=1024)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "monitoring_functions"
@@ -68,11 +69,11 @@ class monitoring_functions(models.Model):
 class monitoring_metrics(models.Model):
     function = models.ForeignKey(monitoring_functions)
     name = models.CharField(max_length=30, blank=True)
-    cmd = models.CharField(max_length=1024, blank=False)
-    threshold = models.DecimalField(max_digits=6, decimal_places=2)
-    interval = models.DecimalField(max_digits=6, decimal_places=2)
-    description = models.CharField(max_length=1024)
-    created = models.DateTimeField(auto_now_add=True)
+    cmd = models.CharField(max_length=1024, null=True)
+    threshold = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    interval = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    description = models.CharField(max_length=1024, null=True)
+    created = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "monitoring_metrics"
@@ -109,11 +110,11 @@ class monitoring_rules(models.Model):
     #function = models.ForeignKey(monitoring_functions, blank=True)
     summary = models.CharField(max_length=1024, blank=True)
     notification_type = models.ForeignKey(monitoring_notif_types)
-    name = models.CharField(max_length=30, blank=True)
-    condition = models.CharField(max_length=1024, blank=False)
+    name = models.CharField(max_length=60, blank=True)
+    condition = models.CharField(max_length=2048, blank=False)
     duration = models.CharField(max_length=30, blank=False)
-    description = models.CharField(max_length=1024)
-    created = models.DateTimeField(auto_now_add=True)
+    description = models.CharField(max_length=2048)
+    created = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "monitoring_rules"
@@ -139,38 +140,3 @@ class ServiceConf(object):
         self.functions = functions
         self.metrics = metrics
         self.rules = rules
-#####################################################################################
-'''
-class Comment(object):
-    def __init__(self, email, content, created=None):
-        self.email = email
-        self.content = content
-        self.created = created or datetime.now()
-
-comment = Comment(email='leila@example.com', content='foo bar')
-
-class test_tb(models.Model):
-    owner = models.ForeignKey('auth.User', related_name='api')
-    highlighted = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)
-    title = models.CharField(max_length=100, blank=True, default='')
-    code = models.TextField()
-    linenos = models.BooleanField(default=False)
-    language = models.CharField(choices=LANGUAGE_CHOICES, default='python', max_length=100)
-    style = models.CharField(choices=STYLE_CHOICES, default='friendly', max_length=100)
-
-    def save(self, *args, **kwargs):
-    	"""
-    	Use the `pygments` library to create a highlighted HTML
-    	representation of the code snippet.
-    	"""
-    	lexer = get_lexer_by_name(self.language)
-    	linenos = self.linenos and 'table' or False
-    	options = self.title and {'title': self.title} or {}
-    	formatter = HtmlFormatter(style=self.style, linenos=linenos,full=True, **options)
-    	self.highlighted = highlight(self.code, lexer, formatter)
-    	super(test_tb, self).save(*args, **kwargs)
-
-    class Meta:
-        ordering = ('created',)
-'''

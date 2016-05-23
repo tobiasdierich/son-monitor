@@ -20,6 +20,7 @@ from itertools import *
 from django.forms.models import model_to_dict
 import json
 from drf_multiple_model.views import MultipleModelAPIView
+from httpClient import Http
 
 
 # Create your views here.
@@ -116,36 +117,30 @@ class SntNewServiceConf(generics.CreateAPIView):
         service = request.data['service']
         functions = request.data['functions']
         rules = request.data['rules']
-        u = monitoring_users.objects.all().filter(sonata_userid=service['sonata_usr_id'])
+        
+        if not service['sonata_usr_id']:
+            u = monitoring_users.objects.all().filter(sonata_userid='system')  
+        else:
+            u = monitoring_users.objects.all().filter(sonata_userid=service['sonata_usr_id'])             
+        
         if u.count() == 0:
             #add new user
             usr = monitoring_users(sonata_userid=service['sonata_usr_id'])
             usr.save()
-            print 'New user added'
         else:
             usr = u[0]
-        print usr
-        #print json.dumps(service)
-        #s = monitoring_services(sonata_srv_id=service['sonata_srv_id'], name=service['name'], description=service['description'], host_id=service['host_id'])
-        
         s = monitoring_services.objects.all().filter(sonata_srv_id=service['sonata_srv_id'])
         if s.count() > 0:
             s.delete()
-
-        srv_pop_id = ''
+    
+    srv_pop_id = ''
         srv_host_id = ''
-        if 'pop_id' in service: 
+        if service['pop_id']: 
             srv_pop_id = service['pop_id']
-        if 'host_id' in service: 
+        if service['host_id']: 
             srv_host_id = service['host_id']
-        print srv_host_id +' '+srv_pop_id
         srv = monitoring_services(sonata_srv_id=service['sonata_srv_id'], name=service['name'], description=service['description'], host_id=srv_host_id, user=usr, pop_id=srv_pop_id)
         srv.save()
-        print srv
-        #m = monitoring_functions.objects.all().filter(service=srv)
-        #if m.count() > 0:
-        #    m.delete()
-         #   print 'Functions Cleared'
         for f in functions:
             print f['pop_id']
             func = monitoring_functions(service=srv ,host_id=f['host_id'] ,name=f['name'] , sonata_func_id=f['sonata_func_id'] , description=f['description'], pop_id=f['pop_id'])
@@ -153,9 +148,13 @@ class SntNewServiceConf(generics.CreateAPIView):
             for m in f['metrics']:
                 metric = monitoring_metrics(function=func ,name=m['name'] ,cmd=m['cmd'] ,threshold=m['threshold'] ,interval=m['interval'] ,description=m['description'])
                 metric.save()
-
+        
+        rls = {}
+        rls['service'] = service['sonata_srv_id']
+        rls['vnf'] = "To be found..."
+        rls['rules'] = []  
         for r in rules:
-            print json.dumps(r)
+            #print json.dumps(r)
             nt = monitoring_notif_types.objects.all().filter(id=r['notification_type'])
             if nt.count() == 0:
                 return Response({'error':'Alert notification type does not supported. Action Aborted'}, status=status.HTTP_400_BAD_REQUEST)
@@ -163,11 +162,31 @@ class SntNewServiceConf(generics.CreateAPIView):
             else:
                 rule = monitoring_rules(service=srv, summary=r['summary'] ,notification_type=nt[0], name=r['name'] ,condition=r['condition'] ,duration=r['duration'] ,description=r['description'] )
                 rule.save()
+                rl = {}
+                rl['name'] = r['name']
+        rl['description'] = r['description']
+                rl['summary'] = r['summary']
+                rl['duration'] = r['duration']
+                rl['notification_type'] = r['notification_type']
+                rl['condition'] = r['condition']
+                rl['labels'] = ["serviceID=\""+rls['service']+"\""]
+        rls['rules'].append(rl)
 
-        #if len(rules) > 0:
-            #rf = RuleFile(service['sonata_srv_id'],rules) 
-            #rf.writeFile();
-        return Response({'status':"success"})
+        if len(rules) > 0:
+            cl = Http()
+        rsp = cl.POST('http://prometheus:9089/prometheus/rules',[],json.dumps(rls))            
+            if rsp == 200:
+                return Response({'status':"success"})
+            else:
+                srv.delete()
+                return Response({'error': 'Service update fail '+str(rsp)})
+
+    def getVnfId(funct_,host_):
+        for fn in funct_:
+            if fn['host_id'] == host_:
+                return fn['sonata_func_id']
+            else:
+                return 'Undefined'
 
 class SntMetricsDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = monitoring_metrics.objects.all()
@@ -212,151 +231,5 @@ class SntPromMetricData(generics.CreateAPIView):
         except KeyError:
             response = data
         return Response(response)
-'''
-class SntServiceConfList(generics.ListCreateAPIView):
-    serializer_class = SntServiceConfSerializer
 
-    def get_queryset(self):
-        #queryset = monitoring_users.objects.all()
-        return list(itertools.chain(monitoring_services.objects.all(), monitoring_services.objects.all()))
-
-'''
-########################################################################################3
-"""
-class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-class UserDetail(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class TestList(generics.ListCreateAPIView):
-    #permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    queryset = test_tb.objects.all()
-    serializer_class = TestTBSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-
-class TestDetail(generics.RetrieveUpdateDestroyAPIView):
-    #permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
-    queryset = test_tb.objects.all()
-    serializer_cProDatalass = TestTBSerializer
-
-
-
-class TestList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
-    queryset = test_tb.objects.all()
-    serializer_class = TestTBSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
-class TestDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-    queryset = test_tb.objects.all()
-    serializer_class = TestTBSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
-
-
-class TestList(APIView):
-    
-    //List all snippets, or create a new snippet.
-    
-    def get(self, request, format=None):
-        snippets = test_tb.objects.all()
-        serializer = TestTBSerializer(snippets, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = TestTBSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class TestDetail(APIView):
-    
-    //Retrieve, update or delete a snippet instance.
-    
-    def get_object(self, pk):
-        try:
-            return test_tb.objects.get(pk=pk)
-        except test_tb.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = TestTBSerializer(snippet)
-        return Response(serializer.data)
-
-    def put(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = TestTBSerializer(snippet, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-@api_view(['GET', 'POST'])
-def test_list(request, format=None):
-
-    if request.method == 'GET':
-        snippets = test_tb.objects.all()
-        serializer = TestTBSerializer(snippets, many=True)
-        return Response(serializer.data)
-
-    elif request.method == 'POST':
-        serializer = TestTBSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-       	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['GET', 'PUT', 'DELETE'])
-def test_detail(request, pk, format=None):
-
-    try:
-       	snippet = test_tb.objects.get(pk=pk)
-    except test_tb.DoesNotExist:
-       	return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-       	serializer = TestTBSerializer(snippet)
-       	return Response(serializer.data)
-
-    elif request.method == 'PUT':
-       	serializer = TestTBSerializer(snippet, data=request.data)
-       	if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-       	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        snippet.delete()
-       	return Response(status=status.HTTP_204_NO_CONTENT)
-
-"""
-
-
+ 

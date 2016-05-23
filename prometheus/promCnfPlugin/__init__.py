@@ -24,14 +24,25 @@ def hello():
 def api_rules():
     if request.method == 'POST':
         conf = json.loads(request.data)
-        srv_id = conf['service']
+        if 'service' in conf:
+            srv_id = conf['service']
+        else:
+            message = {
+                'status': 500,
+                'message': 'KeyError',
+            }
+            resp = jsonify(message)
+            resp.status_code = 500
+            return resp
         rf = fileBuilder(srv_id, conf['rules'], promPath)
-	status = rf.writeFile();
-	message = {
+    status = rf.writeFile();
+    message = {
                 'status': 200,
                 'message': status,
             } 
-        return jsonify(message)
+        resp = jsonify(message)
+        resp.status_code = 200
+        return resp
     elif request.method == 'GET':    
         return '(GET) get alert for '
     elif request.method == 'PUT':    
@@ -61,7 +72,10 @@ def api_rules_per_srv(srv_id):
                 'status': 200,
                 'message': 'File NOT FOUND (' +fname+')',
             }
-        return jsonify(message)
+        resp = jsonify(message)
+        resp.status_code = 404  
+        return resp
+
     elif request.method == 'GET':
         fname = promPath+'rules/'+srv_id.strip()+'.rules'
         if os.path.isfile(fname):
