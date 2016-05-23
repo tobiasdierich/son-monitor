@@ -22,6 +22,8 @@ services:
  prometheus:
   build: ./prometheus
   restart: always
+  volumes:
+   - /tmp/monitoring/prom/apache:/var/log/apache2
   ports:
    - "9090:9090"
    - "9089:9089"
