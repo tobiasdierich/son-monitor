@@ -11,8 +11,22 @@ class fileBuilder(object):
         print 'reload....'
 
     def buildRule(self, rule):
-        rule = 'ALERT ' + rule['name'].replace (" ", "_") +'\n'+'  IF ' + rule['condition'] + '\n'+'  FOR ' + rule['duration'] + '\n'+'  LABELS { serviceID = "' + self.serviceID +'" }'+'\n'+'  ANNOTATIONS { '+'\n'+'    summary = "Instance {{ $labels.instance }} down",'+'\n'+'    description = "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.",'+'\n'+'}'+'\n'
+        labels =''
+        rule['name'] = rule['name'].replace(':','_')
+        for lb in rule['labels']:
+            labels += lb +', '        
+        rule = 'ALERT ' + rule['name'].replace (" ", "_") +'\n'+'  IF ' + self.conditionRule(rule['condition']) + '\n'+'  FOR ' + rule['duration'] + '\n'+' LABELS {'+labels[:-2]+'}'+'\n'+'  ANNOTATIONS { '+'\n'+'    summary = "'+rule['summary']+' {{$labels.instance}}",'+'\n'+'    description = "'+rule['description']+' {{ $labels.instance }} of job {{ $labels.job }}",'+'\n'+'}'+'\n'
         return rule
+
+    def conditionRule(self, rule):
+        els = rule.split(" ")
+        index = 0
+        for el in els:
+            if ':' in el:
+                ep = el.split(':')
+                els[index] = " "+ep[1]+'{id=\"'+ep[0]+'\"} '
+            index +=1
+        return ''.join(str(x) for x in els)
 
     def writeFile(self):
         body = ''
