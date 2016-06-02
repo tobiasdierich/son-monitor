@@ -1,8 +1,8 @@
 FROM ubuntu:14.04
 
 RUN apt-get update && apt-get -y upgrade && \
-apt-get install -y apache2 libapache2-mod-wsgi python-dev python-pip python-yaml nano python-influxdb && \
-pip install Flask pika
+apt-get install -y apache2 libapache2-mod-wsgi python-dev python-pip python-yaml nano  && \
+pip install Flask pika python-influxdb
 
 
 RUN mkdir -p /opt/Monitoring/prometheus && \
