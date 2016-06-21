@@ -16,10 +16,9 @@ __date__ ="$May 31, 2016 6:46:27 PM$"
 def checkServPlatform(time_window):
     global count
     cl = influx('influx',8086,'','','prometheus')
-    #resp = cl.databases()
-    #print resp
-    #resp = cl.getseries()
-    #print resp
+    if not cl.checkDB('prometheus'):
+        print 'Influx prometeheus DB not found'
+        return
     
     resp = cl.query('select * from ALERTS where alertstate=\'firing\' and value=1 and time > now() - '+ time_window)
     if 'series' in resp:

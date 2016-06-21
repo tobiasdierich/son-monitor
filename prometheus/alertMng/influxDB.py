@@ -26,3 +26,11 @@ class influx(object):
         client = InfluxDBClient(self.host, self.port, self.user, self.password, self.db_name)
         result = client.get_list_series(self.db_name)
         return result
+
+    def checkDB(self, db_name):
+        client = InfluxDBClient(self.host, self.port, self.user, self.password)
+        result = client.get_list_database()
+        for db in result:
+            if db['name'] == db_name:
+                return True
+        return False
