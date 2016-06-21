@@ -1,48 +1,79 @@
-ALERT HighMemoryAlert
-  IF container_memory_usage_bytes > 20000000
+ALERT sp_cpu_usage
+  IF vm_cpu_perc > 85
   FOR 1m
-  LABELS {id = "/docker/"}
-  ANNOTATIONS { 
-    summary = "High Memory usage for Ubuntu container",
-    description = "High Memory usage for Ubuntu container on {{$labels.instance}} for container {{$labels.name}} (current value {{$value}})"
+  LABELS {exported_job = "vm"}
+  ANNOTATIONS {
+    summary = "SP CPU usage exceeded 85%",
+    description = "High CPU usage for VM {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
   }
 
 
-ALERT node_cpu_seconds
-  IF node_cpu{mode="user"} > 50
+ALERT sp_disk_usage
+  IF vm_disk_usage_perc > 80
   FOR 1m
-  LABELS { mode="user" }
+  LABELS {exported_job = "vm"}
   ANNOTATIONS { 
-    summary = "Seconds the cpus spent in each mode",
-    description = "Seconds the cpus spent on user for node {{$labels.instance}}  {{$labels.cpu}} (current value {{$value}})"
+    summary = "SP disk usage exceeded 80%",
+    description = "High disk usage for VM {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
   }
   
 
-ALERT memory_usage
-  IF (node_memory_MemTotal - node_memory_MemFree)/node_memory_MemTotal > 0.75
+ALERT sp_mem_usage   
+  IF vm_mem_perc > 80
   FOR 1m
-  LABELS { }
-  ANNOTATIONS { 
-    summary = "Memory Usage alert ",
-    description = "Memory usage warning for node {{$labels.instance}} (current value {{$value}})"
+  LABELS {exported_job = "vm"}
+  ANNOTATIONS {
+    summary = "SP memory usage exceeded 80%",
+    description = "High memory usage for VM {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
   }
 
 
-ALERT OpenStack_memory_usage
-  IF (totalRAMUsed)/maxTotalRAMSize > 0.75
+ALERT cnt_cpu_usage
+  IF cnt_cpu_perc > 85
   FOR 1m
-  LABELS {}
-  ANNOTATIONS { 
-    summary = "OpenStack RAM Memory Usage alert ",
-    description = "Memory usage warning for Openstack node {{$labels.instance}} (current value {{$value}})"
+  LABELS {exported_job = "containers"}
+  ANNOTATIONS {
+    summary = "Container CPU usage exceeded 85%",
+    description = "High CPU usage for container {{$labels.name}}  {{$labels.id}} (current value {{$value}})"
+  }  
+
+ALERT cnt_mem_usage
+  IF cnt_mem_perc > 80
+  FOR 1m
+  LABELS {exported_job = "containers"}
+  ANNOTATIONS {
+    summary = "Container memory usage exceeded 80%",
+    description = "High memory usage for container {{$labels.name}}  {{$labels.id}} (current value {{$value}})"
   }
 
 
-ALERT Port_received_drops
-  IF port_receive_drops > 0.0
+
+ALERT vnf_cpu_usage
+  IF vm_cpu_perc > 85
   FOR 1m
-  LABELS {}
-  ANNOTATIONS { 
-    summary = "Drops per ports",
-    description = "Drops per ports {{$labels.instance}} (current value {{$value}})"
+  LABELS {exported_job = "vnf"}
+  ANNOTATIONS {
+    summary = "VNF CPU usage exceeded 85%",
+    description = "High CPU usage for VNF {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
   }
+
+
+ALERT vnf_disk_usage
+  IF vm_disk_usage_perc > 80
+  FOR 1m
+  LABELS {exported_job = "vnf"}
+  ANNOTATIONS {
+    summary = "VNF disk usage exceeded 80%",
+    description = "High disk usage for VNF {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
+  }
+
+
+ALERT vnf_mem_usage
+  IF vm_mem_perc > 80
+  FOR 1m
+  LABELS {exported_job = "vnf"}
+  ANNOTATIONS {
+    summary = "VNF memory usage exceeded 80%",
+    description = "High memory usage for VNF {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
+  }
+

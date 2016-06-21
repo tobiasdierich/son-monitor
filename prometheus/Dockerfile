@@ -1,16 +1,18 @@
 FROM ubuntu:14.04
 
 RUN apt-get update && apt-get -y upgrade && \
-apt-get install -y apache2 libapache2-mod-wsgi python-dev python-pip python-yaml nano && \
-pip install Flask
+apt-get install -y apache2 libapache2-mod-wsgi python-dev python-pip python-yaml nano  && \
+pip install Flask pika influxdb
 
 
 RUN mkdir -p /opt/Monitoring/prometheus && \
+mkdir -p /opt/Monitoring/prometheus/alertMng && \
 mkdir -p /var/www/PromCnf/PromCnf/static && \
 mkdir -p /var/www/PromCnf/PromCnf/templates 
 
 COPY ./prometheus-0.17.0rc2.linux-amd64/ /opt/Monitoring/prometheus
 COPY ./sonataConf/ /opt/Monitoring/prometheus
+COPY ./alertMng/ /opt/Monitoring/prometheus/alertMng
 COPY ./promCnfPlugin/PromCnf.conf /etc/apache2/sites-available
 COPY ./promCnfPlugin/PromCnf.wsgi /var/www/PromCnf
 COPY ./promCnfPlugin/ /var/www/PromCnf/PromCnf 

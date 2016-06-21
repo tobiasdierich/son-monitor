@@ -5,7 +5,7 @@ services:
   build: ./influxDB
   restart: always
   ports:
-   - "8087:8086"
+   - "8086:8086"
 
  mysql:
   build: ./mysql
@@ -30,6 +30,9 @@ services:
   depends_on:
    - pushgateway
    - influx
+  environment:
+   - RABBIT_URL=192.168.1.50:5672
+   - EMAIL_PASS=czBuQHRAX21vbl9zeXNfMTY=
 
  manager:
   build: ./manager
