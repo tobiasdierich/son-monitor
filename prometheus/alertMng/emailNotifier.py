@@ -27,15 +27,15 @@ class emailNotifier():
             m = self.alarmStatus(notif)
             msg = MIMEText(m['body'])
             msg.set_unixfrom('Sonata Monitoring System')
-            if notif['exported_job'] == 'vm':
-                receivers = ['pkarkazis@synelixis.com']
+            receivers = ['pkarkazis@synelixis.com']
+            if notif['exported_job'] == 'vm': 
                 msg['To'] = email.utils.formataddr(('Recipient', receivers))
             elif notif['exported_job'] == 'vnf':
                 if 'UserID' in notif:
-		    usr = self.getEmail(notif['UserID'])
-		else:
-		    usr={}
-		    usr['email']='pkarkazis@synelixis.com'
+                    usr = self.getEmail(notif['UserID'])
+                else:
+                    usr={}
+                    usr['email']='pkarkazis@synelixis.com'
                 if 'email' in usr:
                     match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', usr['email'])
                     if match == None:
