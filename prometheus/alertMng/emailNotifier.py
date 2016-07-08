@@ -80,7 +80,7 @@ class emailNotifier():
             return
         
         try:
-            server = smtplib.SMTP('mail.synelixis.com',25)
+            server = smtplib.SMTP('mail.synelixis.com',26)
             #server.set_debuglevel(1)
             server.ehlo()
             #server.starttls()

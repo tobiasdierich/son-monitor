@@ -114,9 +114,20 @@ class SntMetricsPerFunctionList1(generics.ListAPIView):
 class SntNewServiceConf(generics.CreateAPIView):
     serializer_class = NewServiceSerializer
     def post(self, request, *args, **kwargs):
+
+        if not 'service' in request.data:
+            return Response({'error':'Undefined Service'}, status=status.HTTP_400_BAD_REQUEST)
+        if not 'functions' in request.data:
+            return Response({'error':'Undefined Functions'}, status=status.HTTP_400_BAD_REQUEST)
+        if not 'rules' in request.data:
+            return Response({'error':'Undefined Rules'}, status=status.HTTP_400_BAD_REQUEST)
+
         service = request.data['service']
         functions = request.data['functions']
         rules = request.data['rules']
+        functions_status='NULL'
+        metrics_status= 'NULL'
+        rules_status='NULL'
         
         if not service['sonata_usr_id']:
             u = monitoring_users.objects.all().filter(sonata_userid='system')  
@@ -142,10 +153,12 @@ class SntNewServiceConf(generics.CreateAPIView):
         srv = monitoring_services(sonata_srv_id=service['sonata_srv_id'], name=service['name'], description=service['description'], host_id=srv_host_id, user=usr, pop_id=srv_pop_id)
         srv.save()
         for f in functions:
+            functions_status=len(functions)
             print f['pop_id']
             func = monitoring_functions(service=srv ,host_id=f['host_id'] ,name=f['name'] , sonata_func_id=f['sonata_func_id'] , description=f['description'], pop_id=f['pop_id'])
             func.save()
             for m in f['metrics']:
+                metrics_status=len(f['metrics'])
                 metric = monitoring_metrics(function=func ,name=m['name'] ,cmd=m['cmd'] ,threshold=m['threshold'] ,interval=m['interval'] ,description=m['description'])
                 metric.save()
         
@@ -160,6 +173,7 @@ class SntNewServiceConf(generics.CreateAPIView):
                 return Response({'error':'Alert notification type does not supported. Action Aborted'}, status=status.HTTP_400_BAD_REQUEST)
                 srv.delete()
             else:
+                rules_status=len(rules)
                 rule = monitoring_rules(service=srv, summary=r['summary'] ,notification_type=nt[0], name=r['name'] ,condition=r['condition'] ,duration=r['duration'] ,description=r['description'] )
                 rule.save()
                 rl = {}
@@ -170,16 +184,18 @@ class SntNewServiceConf(generics.CreateAPIView):
                 rl['notification_type'] = r['notification_type']
                 rl['condition'] = r['condition']
                 rl['labels'] = ["serviceID=\""+rls['service']+"\""]
-        rls['rules'].append(rl)
+            rls['rules'].append(rl)
 
         if len(rules) > 0:
             cl = Http()
             rsp = cl.POST('http://prometheus:9089/prometheus/rules',[],json.dumps(rls))            
             if rsp == 200:
-                return Response({'status':"success"})
+                return Response({'status':"success","vnfs":functions_status,"metrics":metrics_status,"rules":rules_status})
             else:
                 srv.delete()
                 return Response({'error': 'Service update fail '+str(rsp)})
+        else:
+            return Response({'status':"success","vnfs":functions_status,"metrics":metrics_status,"rules":rules_status})
 
     def getVnfId(funct_,host_):
         for fn in funct_:
