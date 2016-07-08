@@ -5,7 +5,7 @@ services:
   image: registry.sonata-nfv.eu:5000/son-monitor-influxdb
   restart: always
   ports:
-   - "8087:8086"
+   - "8086:8086"
 
  mysql:
   image: registry.sonata-nfv.eu:5000/son-monitor-mysql
@@ -30,6 +30,9 @@ services:
   depends_on:
    - pushgateway
    - influx
+  environment:
+   - RABBIT_URL=sp.int.sonata-nfv.eu:5672
+   - EMAIL_PASS=czBuQHRAX21vbl9zeXNfMTY=
 
  manager:
   image: registry.sonata-nfv.eu:5000/son-monitor-manager
