@@ -1,5 +1,5 @@
 ALERT sp_cpu_usage
-  IF vm_cpu_perc > 85
+  IF vm_cpu_perc{exported_job = "vm"} > 85
   FOR 1m
   LABELS {exported_job = "vm"}
   ANNOTATIONS {
@@ -9,7 +9,7 @@ ALERT sp_cpu_usage
 
 
 ALERT sp_disk_usage
-  IF vm_disk_usage_perc > 80
+  IF vm_disk_usage_perc{exported_job = "vm"} > 80
   FOR 1m
   LABELS {exported_job = "vm"}
   ANNOTATIONS { 
@@ -19,7 +19,7 @@ ALERT sp_disk_usage
   
 
 ALERT sp_mem_usage   
-  IF vm_mem_perc > 80
+  IF vm_mem_perc{exported_job = "vm"} > 80
   FOR 1m
   LABELS {exported_job = "vm"}
   ANNOTATIONS {
@@ -29,7 +29,7 @@ ALERT sp_mem_usage
 
 
 ALERT cnt_cpu_usage
-  IF cnt_cpu_perc > 85
+  IF cnt_cpu_perc{exported_job = "containers"} > 85
   FOR 1m
   LABELS {exported_job = "containers"}
   ANNOTATIONS {
@@ -38,7 +38,7 @@ ALERT cnt_cpu_usage
   }  
 
 ALERT cnt_mem_usage
-  IF cnt_mem_perc > 80
+  IF cnt_mem_perc{exported_job = "containers"} > 80
   FOR 1m
   LABELS {exported_job = "containers"}
   ANNOTATIONS {
@@ -49,7 +49,7 @@ ALERT cnt_mem_usage
 
 
 ALERT vnf_cpu_usage
-  IF vm_cpu_perc > 85
+  IF vm_cpu_perc{exported_job = "vnf"} > 85
   FOR 1m
   LABELS {exported_job = "vnf"}
   ANNOTATIONS {
@@ -59,7 +59,7 @@ ALERT vnf_cpu_usage
 
 
 ALERT vnf_disk_usage
-  IF vm_disk_usage_perc > 80
+  IF vm_disk_usage_perc{exported_job = "vnf"} > 80
   FOR 1m
   LABELS {exported_job = "vnf"}
   ANNOTATIONS {
@@ -69,7 +69,7 @@ ALERT vnf_disk_usage
 
 
 ALERT vnf_mem_usage
-  IF vm_mem_perc > 80
+  IF vm_mem_perc{exported_job = "vnf"} > 80
   FOR 1m
   LABELS {exported_job = "vnf"}
   ANNOTATIONS {
