@@ -42,7 +42,7 @@ To contribute to the development of the SONATA gui you have to fork the reposito
 ### Installation
 ```
 docker run -d --name son-monitor-influxdb -p 8086:8086 son-monitor-influxdb
-docker run -d --name son-monitor-mysql -p 3306:3306 son-monitor-mysql
+docker run -d --name son-monitor-mysql -e MYSQL_ROOT_PASSWORD=user -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=dbname -p 3306:3306 son-monitor-mysql
 docker run -d --name son-monitor-pushgateway -p 9091:9091 son-monitor-pushgateway
 docker run -d --name son-monitor-prometheus -p 9090:9090 -p 9089:9089 -e RABBIT_URL=<son-broker-ip>:5671 --add-host pushgateway:127.0.0.1 --add-host influx:127.0.0.1 son-monitor-prometheus
 docker run -d --name son-monitor-manager --add-host mysql:127.0.0.1 --add-host prometheus:127.0.0.1 -p 8000:8000 son-monitor-manager
