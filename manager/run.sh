@@ -1,6 +1,6 @@
 #!/bin/bash
-echo "Wait 10 secs...."
-sleep 10 && \
+echo "Wait 25 secs...."
+sleep 25 && \
 python /opt/Monitoring/manage.py makemigrations && \
 python /opt/Monitoring/manage.py migrate && \
 python /opt/Monitoring/manage.py loaddata /opt/Monitoring/db_data.json && \
