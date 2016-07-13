@@ -1,6 +1,9 @@
 #!/bin/bash
-echo "Wait 10 secs...."
-sleep 10 && \
+echo "Wait for sqlDB...."
+while ! nc -z mysql 3306; do
+  sleep 1 && echo -n .; # waiting for mysql
+done; 
+
 python /opt/Monitoring/manage.py makemigrations && \
 python /opt/Monitoring/manage.py migrate && \
 python /opt/Monitoring/manage.py loaddata /opt/Monitoring/db_data.json && \

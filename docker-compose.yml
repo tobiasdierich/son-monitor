@@ -11,7 +11,12 @@ services:
   image: registry.sonata-nfv.eu:5000/son-monitor-mysql
   restart: always
   ports:
-   - 3306
+   - "3306:3306"
+  environment:
+   - MYSQL_ROOT_PASSWORD=1234
+   - MYSQL_USER=monitoringuser
+   - MYSQL_PASSWORD=sonata
+   - MYSQL_DATABASE=monitoring
 
  pushgateway:
   image: registry.sonata-nfv.eu:5000/son-monitor-pushgateway
