@@ -38,7 +38,11 @@ To contribute to the development of the SONATA gui you have to fork the reposito
 
 ### Installation
 ```
-sudo docker-compose up
+sudo docker run -d --name son-monitor-influxdb -p 8086:8086 son-monitor-influxdb
+sudo docker run -d --name son-monitor-mysql -p 3306:3306 son-monitor-mysql
+sudo docker run -d --name son-monitor-pushgateway -p 9091:9091 son-monitor-pushgateway
+sudo docker run -d --name son-monitor-prometheus -p 9090:9090 -p 9089:9089 -e RABBIT_URL=<son-broker-ip>:5671 --add-host pushgateway:127.0.0.1 --add-host influx:127.0.0.1 son-monitor-prometheus
+sudo docker run -d --name son-monitor-manager --add-host mysql:127.0.0.1 --add-host prometheus:127.0.0.1 -p 8000:8000 son-monitor-manager
 ```
 ### Usage
 Documentation of the RESTful API of Monitoring Manager is provided by a Swagger UI in url: http://<manager-ip>:8000/docs.
