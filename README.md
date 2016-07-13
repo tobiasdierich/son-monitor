@@ -5,11 +5,11 @@ Sonata's monitoring system gathers, analyzes performance information from NS/VNF
 ### Development
 SONATA's monitoring system based on following services:
 
-1. ['Monitoring manager'](https://github.com/sonata-nfv/son-monitor/tree/master/manager): Is a Django/rest-framework server combined with a relational database (mysql,postgres ect). Monitoring manager relates each metric in Prometheus DB with Sonata's monitored entities like NS/VNFs, vms and VIMs.
+1. [Monitoring manager](https://github.com/sonata-nfv/son-monitor/tree/master/manager): Is a Django/rest-framework server combined with a relational database (mysql,postgres ect). Monitoring manager relates each metric in Prometheus DB with Sonata's monitored entities like NS/VNFs, vms and VIMs.
 
-2. ['Prometheus server'](https://github.com/sonata-nfv/son-monitor/tree/master/prometheus): Prometheus is an open-source systems monitoring and alerting toolkit, its a standalone server not depending on network storage or other remote services. 
+2. [Prometheus server](https://github.com/sonata-nfv/son-monitor/tree/master/prometheus): Prometheus is an open-source systems monitoring and alerting toolkit, its a standalone server not depending on network storage or other remote services. 
 
-3. ['Prometheus pushgategay'](https://github.com/sonata-nfv/son-monitor/tree/master/pushgateway): Despite the fact that the default approach from prometheus is to retrieve the metrics data by performing http get requests to exporters (containers, vms etc). The usage of http post methods from exporters to Prometheus has many advantages like no need for exporters to implement a web socket in order to be reached from prometheus, no need to reconfigure prometheus each time a VNF is created or changes ip address etc.
+3. [Prometheus pushgategay](https://github.com/sonata-nfv/son-monitor/tree/master/pushgateway): Despite the fact that the default approach from prometheus is to retrieve the metrics data by performing http get requests to exporters (containers, vms etc). The usage of http post methods from exporters to Prometheus has many advantages like no need for exporters to implement a web socket in order to be reached from prometheus, no need to reconfigure prometheus each time a VNF is created or changes ip address etc.
 
 ### Building
 Each micro service of the framework is executed in its own Docker container. Building steps are defined in a Dockerfile of each service
