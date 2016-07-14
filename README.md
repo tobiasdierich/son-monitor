@@ -14,8 +14,6 @@ SONATA's monitoring system based on following services:
 ### Building
 Each micro service of the framework is executed in its own Docker container. Building steps are defined in a Dockerfile of each service
 ```
-docker build -f influxDB/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-influxdb .
-docker build -f mysql/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-mysql .
 docker build -f pushgatwway/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-pushgateway .
 docker build -f prometheus/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-prometheus .
 docker build -f manager/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-manager .
