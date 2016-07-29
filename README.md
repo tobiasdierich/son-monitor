@@ -2,7 +2,7 @@
 Sonata's monitoring system gathers, analyzes performance information from NS/VNF and provides alarm notifications, based on alarm definitions which have been defined from the users. The architecture of the system is based on data exporters and a monitoring server. Data exporters sends monitoring data from NS/VNFs to monitoring server which collects, analyses, stores data and generates the appropriate notifications. In generally monitoring server consisting of a rest api interface, an alerting mechanism (based on prometheus.io), a timeseries DB and a real time notification service.
 
 
-## Development
+### Development
 SONATA's monitoring system based on following services:
 
 1. [Monitoring manager](https://github.com/sonata-nfv/son-monitor/tree/master/manager): Is a Django/rest-framework server combined with a relational database (mysql,postgres ect). Monitoring manager relates each metric in Prometheus DB with Sonata's monitored entities like NS/VNFs, vms and VIMs.
@@ -14,9 +14,12 @@ SONATA's monitoring system based on following services:
 ### Building
 Each micro service of the framework is executed in its own Docker container. Building steps are defined in a Dockerfile of each service
 ```
+docker build -f influxDB/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-influxdb .
+docker build -f mysql/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-mysql .
 docker build -f pushgatwway/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-pushgateway .
-docker build -f prometheus/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-prometheus .
+docker build -f peometheus/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-prometheus .
 docker build -f manager/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-manager .
+
 ```
 
 ### Dependencies
@@ -36,7 +39,7 @@ docker build -f manager/Dockerfile -t registry.sonata-nfv.eu:5000/son-monitor-ma
 ### Contributing
 To contribute to the development of the SONATA gui you have to fork the repository, commit new code and create pull requests.
 
-## Installation
+### Installation
 ```
 docker run -d --name son-monitor-influxdb -p 8086:8086 son-monitor-influxdb
 docker run -d --name son-monitor-mysql -e MYSQL_ROOT_PASSWORD=user -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=dbname -p 3306:3306 son-monitor-mysql
@@ -44,15 +47,13 @@ docker run -d --name son-monitor-pushgateway -p 9091:9091 son-monitor-pushgatewa
 docker run -d --name son-monitor-prometheus -p 9090:9090 -p 9089:9089 -e RABBIT_URL=<son-broker-ip>:5671 --add-host pushgateway:127.0.0.1 --add-host influx:127.0.0.1 son-monitor-prometheus
 docker run -d --name son-monitor-manager --add-host mysql:127.0.0.1 --add-host prometheus:127.0.0.1 -p 8000:8000 son-monitor-manager
 ```
-
-## Usage
+### Usage
 Documentation of the RESTful API of Monitoring Manager is provided by a Swagger UI in url: http://127.0.0.1:8000/docs.
 
-## License
+### License
 SONATA gui is published under Apache 2.0 license. Please see the LICENSE file for more details.
 
----
-#### Lead Developers
+###Lead Developers
 
 The following lead developers are responsible for this repository and have admin rights. They can, for example, merge pull requests.
  
