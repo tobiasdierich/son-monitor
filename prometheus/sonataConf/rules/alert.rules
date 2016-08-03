@@ -1,13 +1,3 @@
-ALERT sp_cpu_usage
-  IF vm_cpu_perc{exported_job = "vm"} > 98
-  FOR 1m
-  LABELS {exported_job = "vm"}
-  ANNOTATIONS {
-    summary = "SP CPU usage exceeded 98%",
-    description = "High CPU usage for VM {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
-  }
-
-
 ALERT sp_disk_usage
   IF vm_disk_usage_perc{exported_job = "vm"} > 80
   FOR 1m
