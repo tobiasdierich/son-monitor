@@ -68,7 +68,7 @@ class emailNotifier():
                     else:
                         if usr['email'] == 'system@system.com':
                             usr['email']='pkarkazis@synelixis.com'
-                        receivers = [usr['email']]
+                        receivers = [usr['email'],'trakadasp@yahoo.gr','jbonnet@alticelabs.com']
                         msg['To'] = email.utils.formataddr(('Recipient', usr['email']))
                 else:
                     continue   
