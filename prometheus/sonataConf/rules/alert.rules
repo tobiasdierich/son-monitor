@@ -1,4 +1,13 @@
-ALERT sp_disk_usage
+ALERT sp_cpu_usage_85_perc
+  IF vm_cpu_perc{exported_job = "vm"} > 85
+  FOR 1m
+  LABELS {exported_job = "vm"}
+  ANNOTATIONS { 
+    summary = "SP cpu usage exceeded 85%",
+    description = "High cpu usage for VM {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
+  }
+
+ALERT sp_disk_usage_80_perc
   IF vm_disk_usage_perc{exported_job = "vm"} > 80
   FOR 1m
   LABELS {exported_job = "vm"}
@@ -8,8 +17,8 @@ ALERT sp_disk_usage
   }
   
 
-ALERT sp_mem_usage   
-  IF vm_mem_perc{exported_job = "vm"} > 80
+ALERT sp_mem_usage_80_perc   
+  IF vm_mem_perc{exported_job = "vm"} < 20
   FOR 1m
   LABELS {exported_job = "vm"}
   ANNOTATIONS {
@@ -18,7 +27,7 @@ ALERT sp_mem_usage
   }
 
 
-ALERT cnt_cpu_usage
+ALERT cnt_cpu_usage_85_perc
   IF cnt_cpu_perc{exported_job = "containers"} > 85
   FOR 1m
   LABELS {exported_job = "containers"}
@@ -27,7 +36,7 @@ ALERT cnt_cpu_usage
     description = "High CPU usage for container {{$labels.name}}  {{$labels.id}} (current value {{$value}})"
   }  
 
-ALERT cnt_mem_usage
+ALERT cnt_mem_usage_80_perc
   IF cnt_mem_perc{exported_job = "containers"} > 80
   FOR 1m
   LABELS {exported_job = "containers"}
@@ -35,35 +44,3 @@ ALERT cnt_mem_usage
     summary = "Container memory usage exceeded 80%",
     description = "High memory usage for container {{$labels.name}}  {{$labels.id}} (current value {{$value}})"
   }
-
-
-
-ALERT vnf_cpu_usage
-  IF vm_cpu_perc{exported_job = "vnf"} > 85
-  FOR 1m
-  LABELS {exported_job = "vnf"}
-  ANNOTATIONS {
-    summary = "VNF CPU usage exceeded 85%",
-    description = "High CPU usage for VNF {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
-  }
-
-
-ALERT vnf_disk_usage
-  IF vm_disk_usage_perc{exported_job = "vnf"} > 80
-  FOR 1m
-  LABELS {exported_job = "vnf"}
-  ANNOTATIONS {
-    summary = "VNF disk usage exceeded 80%",
-    description = "High disk usage for VNF {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
-  }
-
-
-ALERT vnf_mem_usage
-  IF vm_mem_perc{exported_job = "vnf"} > 80
-  FOR 1m
-  LABELS {exported_job = "vnf"}
-  ANNOTATIONS {
-    summary = "VNF memory usage exceeded 80%",
-    description = "High memory usage for VNF {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
-  }
-
