@@ -47,8 +47,7 @@ class amqp(object):
         credentials = pika.PlainCredentials(self.user, self.password)
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.host ,self.port,'/',credentials))
         channel = connection.channel()
-
+        #channel.exchange_declare(exchange='son-kernel',type='topic')
         channel.queue_declare(queue = self.queue)
-
-        channel.basic_publish(exchange='',routing_key=self.queue, body=msg)
-        connection.close()
+        channel.queue_bind(exchange='son-kernel',queue=self.queue)
+        channel.basic_publish(exchange='son-kernel',routing_key=self.queue, body=msg)
