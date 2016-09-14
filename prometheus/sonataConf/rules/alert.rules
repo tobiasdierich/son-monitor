@@ -1,6 +1,6 @@
 ALERT sp_cpu_usage_85_perc
   IF vm_cpu_perc{exported_job = "vm"} > 85
-  FOR 1m
+  FOR 20m
   LABELS {exported_job = "vm"}
   ANNOTATIONS { 
     summary = "SP cpu usage exceeded 85%",
@@ -9,7 +9,7 @@ ALERT sp_cpu_usage_85_perc
 
 ALERT sp_disk_usage_80_perc
   IF vm_disk_usage_perc{exported_job = "vm"} > 80
-  FOR 1m
+  FOR 20m
   LABELS {exported_job = "vm"}
   ANNOTATIONS { 
     summary = "SP disk usage exceeded 80%",
@@ -19,7 +19,7 @@ ALERT sp_disk_usage_80_perc
 
 ALERT sp_mem_usage_80_perc   
   IF vm_mem_perc{exported_job = "vm"} < 20
-  FOR 1m
+  FOR 20m
   LABELS {exported_job = "vm"}
   ANNOTATIONS {
     summary = "SP memory usage exceeded 80%",
@@ -29,7 +29,7 @@ ALERT sp_mem_usage_80_perc
 
 ALERT cnt_cpu_usage_85_perc
   IF cnt_cpu_perc{exported_job = "containers"} > 85
-  FOR 1m
+  FOR 20m
   LABELS {exported_job = "containers"}
   ANNOTATIONS {
     summary = "Container CPU usage exceeded 85%",
@@ -38,7 +38,7 @@ ALERT cnt_cpu_usage_85_perc
 
 ALERT cnt_mem_usage_80_perc
   IF cnt_mem_perc{exported_job = "containers"} > 80
-  FOR 1m
+  FOR 20m
   LABELS {exported_job = "containers"}
   ANNOTATIONS {
     summary = "Container memory usage exceeded 80%",
