@@ -124,12 +124,12 @@ WSGI_APPLICATION = 'ManagerSrv.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'monitoring',
         'USER': 'monitoringuser',
         'PASSWORD': 'sonata',
-        'HOST': 'mysql',
-        'PORT': 3306,
+        'HOST': 'postgsql',
+        'PORT': 5433,
     }
 }
 
