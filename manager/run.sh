@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Wait for sqlDB...."
-while ! nc -z mysql 3306; do
+while ! nc -z postgsql 5433; do
   sleep 1 && echo -n .; # waiting for mysql
 done; 
 python /opt/Monitoring/manage.py makemigrations && \
