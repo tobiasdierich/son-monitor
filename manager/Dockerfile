@@ -1,7 +1,7 @@
 FROM ubuntu:14.04
 
 RUN apt-get update && apt-get -y upgrade && \
-apt-get -y install apache2 python2.7 python-pip libmysqlclient-dev python2.7-dev libyaml-dev libapache2-mod-wsgi 
+apt-get -y install apache2 python2.7 python-pip libmysqlclient-dev python2.7-dev libpq-dev libyaml-dev libapache2-mod-wsgi 
 
 RUN mkdir /opt/Monitoring
 COPY ./ /opt/Monitoring
