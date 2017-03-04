@@ -254,6 +254,33 @@ class SntPromMetricList(generics.RetrieveAPIView):
         print response
         return Response(response)
 
+
+class SntWSreq(generics.CreateAPIView):
+    serializer_class = SntPromMetricSerializer
+
+    def post(self, request, *args, **kwargs):
+        filters = []
+        if 'filters' in request.data.keys():
+            filters = request.data['filters']
+        metric = request.data['metric']
+        url = "http://localhost:8888/new/?metric="+metric+"&params="+json.dumps(filters).replace(" ", "")
+        cl = Http()
+        rsp = cl.GET(url,[])
+        response = {}
+        try:
+            if 'name_space' in rsp.keys():
+                response['status'] = "SUCCESS"
+                response['metric'] = request.data['metric']
+                response['ws_url'] = "ws://localhost:8888/ws/"+str(rsp['name_space'])
+            else:
+                response['status'] = "FAIL"
+                response['ws_url'] = None
+        except KeyError:
+            response = data
+            pass
+        return Response(response)
+
+
 class SntPromMetricData(generics.CreateAPIView):
     serializer_class = SntPromMetricSerializer
     '''

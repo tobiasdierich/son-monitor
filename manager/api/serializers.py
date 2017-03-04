@@ -153,6 +153,14 @@ class CommentSerializer(serializers.Serializer):
     content = SntRulesSerializer(many=True)
     created = serializers.DateTimeField()
 
+class wsLabelSerializer(serializers.Serializer):
+    label = ''
+
+class SntWSreqSerializer(serializers.Serializer):
+    metric = serializers.CharField()
+    filters = wsLabelSerializer(many=True)
+
+
 ######################################################################################
 '''
 class TestTBSerializer(serializers.Serializer):
