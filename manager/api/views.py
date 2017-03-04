@@ -1,31 +1,3 @@
-'''
-Copyright (c) 2015 SONATA-NFV [, ANY ADDITIONAL AFFILIATION]
-ALL RIGHTS RESERVED.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-Neither the name of the SONATA-NFV [, ANY ADDITIONAL AFFILIATION]
-nor the names of its contributors may be used to endorse or promote 
-products derived from this software without specific prior written 
-permission.
-
-This work has been performed in the framework of the SONATA project,
-funded by the European Commission under Grant number 671517 through 
-the Horizon 2020 and 5G-PPP programmes. The authors would like to 
-acknowledge the contributions of their colleagues of the SONATA 
-partner consortium (www.sonata-nfv.eu).
-'''
-
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -142,7 +114,7 @@ class SntMetricsPerFunctionList1(generics.ListAPIView):
 class SntNewServiceConf(generics.CreateAPIView):
     serializer_class = NewServiceSerializer
     def post(self, request, *args, **kwargs):
-
+        
         if not 'service' in request.data:
             return Response({'error':'Undefined Service'}, status=status.HTTP_400_BAD_REQUEST)
         if not 'functions' in request.data:
@@ -156,7 +128,6 @@ class SntNewServiceConf(generics.CreateAPIView):
         functions_status='NULL'
         metrics_status= 'NULL'
         rules_status='NULL'
-        
         if not service['sonata_usr_id']:
             u = monitoring_users.objects.all().filter(sonata_userid='system')  
         else:
@@ -181,8 +152,8 @@ class SntNewServiceConf(generics.CreateAPIView):
         srv = monitoring_services(sonata_srv_id=service['sonata_srv_id'], name=service['name'], description=service['description'], host_id=srv_host_id, user=usr, pop_id=srv_pop_id)
         srv.save()
         for f in functions:
-            functions_status=len(functions)
             print f['pop_id']
+            functions_status=len(functions)
             func = monitoring_functions(service=srv ,host_id=f['host_id'] ,name=f['name'] , sonata_func_id=f['sonata_func_id'] , description=f['description'], pop_id=f['pop_id'])
             func.save()
             for m in f['metrics']:
@@ -216,7 +187,7 @@ class SntNewServiceConf(generics.CreateAPIView):
 
         if len(rules) > 0:
             cl = Http()
-            rsp = cl.POST('http://prometheus:9089/prometheus/rules',[],json.dumps(rls))            
+            rsp = cl.POST('http://localhost:5000/prometheus/rules',[],json.dumps(rls))            
             if rsp == 200:
                 return Response({'status':"success","vnfs":functions_status,"metrics":metrics_status,"rules":rules_status})
             else:
@@ -247,12 +218,38 @@ class SntRulesDetail(generics.RetrieveUpdateDestroyAPIView):
 class SntPromMetricList(generics.RetrieveAPIView):
     serializer_class = promMetricsListSerializer
     def get(self, request, *args, **kwargs):
-        mt = ProData('prometheus',9090)
+        mt = ProData('localhost',9090)
         data = mt.getMetrics()
         response = {}
         response['metrics'] = data['data']
         print response
         return Response(response)
+
+class SntWSreq(generics.CreateAPIView):
+    serializer_class = SntPromMetricSerializer
+
+    def post(self, request, *args, **kwargs):
+        filters = []
+        if 'filters' in request.data.keys():
+            filters = request.data['filters']
+        metric = request.data['metric']
+        url = "http://localhost:8888/new/?metric="+metric+"&params="+json.dumps(filters).replace(" ", "")
+        cl = Http()
+        rsp = cl.GET(url,[])
+        response = {}
+        try:
+            if 'name_space' in rsp.keys():
+                response['status'] = "SUCCESS"
+                response['metric'] = request.data['metric']
+                response['ws_url'] = "ws://localhost:8888/ws/"+str(rsp['name_space'])
+            else:
+                response['status'] = "FAIL"
+                response['ws_url'] = None
+        except KeyError:
+            response = data
+            pass
+        return Response(response)
+
 
 class SntPromMetricData(generics.CreateAPIView):
     serializer_class = SntPromMetricSerializer
@@ -275,5 +272,149 @@ class SntPromMetricData(generics.CreateAPIView):
         except KeyError:
             response = data
         return Response(response)
+'''
+class SntServiceConfList(generics.ListCreateAPIView):
+    serializer_class = SntServiceConfSerializer
 
- 
+    def get_queryset(self):
+        #queryset = monitoring_users.objects.all()
+        return list(itertools.chain(monitoring_services.objects.all(), monitoring_services.objects.all()))
+
+'''
+########################################################################################3
+"""
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class TestList(generics.ListCreateAPIView):
+    #permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    queryset = test_tb.objects.all()
+    serializer_class = TestTBSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class TestDetail(generics.RetrieveUpdateDestroyAPIView):
+    #permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
+    queryset = test_tb.objects.all()
+    serializer_cProDatalass = TestTBSerializer
+
+
+
+class TestList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = test_tb.objects.all()
+    serializer_class = TestTBSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+class TestDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = test_tb.objects.all()
+    serializer_class = TestTBSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class TestList(APIView):
+    
+    //List all snippets, or create a new snippet.
+    
+    def get(self, request, format=None):
+        snippets = test_tb.objects.all()
+        serializer = TestTBSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = TestTBSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TestDetail(APIView):
+    
+    //Retrieve, update or delete a snippet instance.
+    
+    def get_object(self, pk):
+        try:
+            return test_tb.objects.get(pk=pk)
+        except test_tb.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        serializer = TestTBSerializer(snippet)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        serializer = TestTBSerializer(snippet, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET', 'POST'])
+def test_list(request, format=None):
+
+    if request.method == 'GET':
+        snippets = test_tb.objects.all()
+        serializer = TestTBSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = TestTBSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def test_detail(request, pk, format=None):
+
+    try:
+        snippet = test_tb.objects.get(pk=pk)
+    except test_tb.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = TestTBSerializer(snippet)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = TestTBSerializer(snippet, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+"""

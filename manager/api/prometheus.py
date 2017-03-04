@@ -1,33 +1,7 @@
 '''
-Copyright (c) 2015 SONATA-NFV [, ANY ADDITIONAL AFFILIATION]
-ALL RIGHTS RESERVED.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-Neither the name of the SONATA-NFV [, ANY ADDITIONAL AFFILIATION]
-nor the names of its contributors may be used to endorse or promote 
-products derived from this software without specific prior written 
-permission.
-
-This work has been performed in the framework of the SONATA project,
-funded by the European Commission under Grant number 671517 through 
-the Horizon 2020 and 5G-PPP programmes. The authors would like to 
-acknowledge the contributions of their colleagues of the SONATA 
-partner consortium (www.sonata-nfv.eu).
+This class creates new rule file for each Sonata Service and include it to Prometheus configuration
 '''
-
 import json, yaml, httplib, subprocess, time
-
 
 class RuleFile(object):
 
@@ -46,7 +20,7 @@ class RuleFile(object):
         body = ''
         for r in self.rules:
             body += self.buildRule(r)
-        filename = "".join(('/opt/Monitoring/prometheus-0.17.0rc2.linux-amd64/rules/',self.serviceID, '.rules'))
+        filename = "".join(('/home/panos/NetBeansProjects/sonataDev/MonitoringSrv/prometheus-0.17.0rc2.linux-amd64/rules/',self.serviceID, '.rules'))
 
         with open(filename, 'w') as outfile:
             outfile.write(body)
@@ -55,21 +29,21 @@ class RuleFile(object):
         if self.validate(filename) == 0:
             print "RuleFile created SUCCESSFULLY"
             #add file to conf file
-            with open('/opt/Monitoring/prometheus-0.17.0rc2.linux-amd64/prometheus.yml', 'r') as conf_file:
+            with open('../prometheus-0.17.0rc2.linux-amd64/prometheus.yml', 'r') as conf_file:
                 conf = yaml.load(conf_file)
                 for rf in conf['rule_files']:
                     if filename in rf:
                         return
                 conf['rule_files'].append(filename)
                 print conf['rule_files']
-                with open('/opt/Monitoring/prometheus-0.17.0rc2.linux-amd64/prometheus.yml', 'w') as yml:
+                with open('../prometheus-0.17.0rc2.linux-amd64/prometheus.yml', 'w') as yml:
                     yaml.safe_dump(conf, yml)
                 self.reloadServer()
                 
             #reload conf
 
     def validate(self,file):
-        p = subprocess.Popen(['/opt/Monitoring/manager/promtool', 'check-rules', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(['./promtool', 'check-rules', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, status = p.communicate()
         print status
         rc = p.returncode
@@ -92,12 +66,16 @@ class RuleFile(object):
 
 
 class ProData(object):
+    # curl 'http://83.235.169.221:8080/api/v1/label/__name__/values?_=1456903913'
+    # curl 'http://83.235.169.221:8080/api/v1/query_range?query=prometheus_data_size&start=2016-02-01T20:10:30.786Z&end=2016-02-28T20:11:00.781Z&step=1h'
 
     def __init__(self, srv_addr_, srv_port_):
         self.srv_addr = srv_addr_
         self.srv_port = srv_port_
 
     def getMetrics(self):
+        # curl 'http://83.235.169.221:8080/api/v1/label/__name__/values?_=1456903913'
+        # curl 'http://83.235.169.221:8080/api/v1/query_range?query=prometheus_data_size&start=2016-02-01T20:10:30.786Z&end=2016-02-28T20:11:00.781Z&step=1h'
         now = int(time.time())
         path = "".join(("/api/v1/label/__name__/values?_=", str(now)))
         d = self.HttpGet(self.srv_addr,self.srv_port,path)
