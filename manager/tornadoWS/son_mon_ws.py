@@ -92,7 +92,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 if __name__ == "__main__":
     hld = NameSpaceHandler()
-    pw = PushGW('http://sp.int3.sonata-nfv.eu:9091/metrics',hld)
+    pw = PushGW('http://pushgateway:9091/metrics',hld)
     
     app = tornado.web.Application([
         (r"/new/", MainHandler, {'ws_hdl': hld}),

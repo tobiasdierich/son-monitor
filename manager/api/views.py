@@ -46,7 +46,7 @@ from api.permissions import IsOwnerOrReadOnly
 from rest_framework.reverse import reverse
 from itertools import *
 from django.forms.models import model_to_dict
-import json
+import json, socket
 from drf_multiple_model.views import MultipleModelAPIView
 from httpClient import Http
 
@@ -256,10 +256,11 @@ class SntPromMetricList(generics.RetrieveAPIView):
 
 
 class SntWSreq(generics.CreateAPIView):
-    serializer_class = SntPromMetricSerializer
+    serializer_class = SntWSreqSerializer
 
     def post(self, request, *args, **kwargs):
         filters = []
+        psw = socket.gethostbyname('pushgateway')
         if 'filters' in request.data.keys():
             filters = request.data['filters']
         metric = request.data['metric']
@@ -271,7 +272,7 @@ class SntWSreq(generics.CreateAPIView):
             if 'name_space' in rsp.keys():
                 response['status'] = "SUCCESS"
                 response['metric'] = request.data['metric']
-                response['ws_url'] = "ws://localhost:8888/ws/"+str(rsp['name_space'])
+                response['ws_url'] = "ws://"+psw+":8888/ws/"+str(rsp['name_space'])
             else:
                 response['status'] = "FAIL"
                 response['ws_url'] = None

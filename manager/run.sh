@@ -16,4 +16,5 @@ cp /opt/Monitoring/apache-site /etc/apache2/sites-available/000-default.conf && 
 sed -i.bak 's/.*Listen.*/Listen '8000'/' /etc/apache2/ports.conf && \
 chown -R www-data:www-data /opt/Monitoring && \
 service apache2 restart 
+python /opt/Monitoring/tornadoWS/son_mon_ws.py &
 tail -f /dev/null
