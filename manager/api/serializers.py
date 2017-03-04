@@ -1,3 +1,33 @@
+'''
+Copyright (c) 2015 SONATA-NFV [, ANY ADDITIONAL AFFILIATION]
+ALL RIGHTS RESERVED.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Neither the name of the SONATA-NFV [, ANY ADDITIONAL AFFILIATION]
+nor the names of its contributors may be used to endorse or promote 
+products derived from this software without specific prior written 
+permission.
+
+This work has been performed in the framework of the SONATA project,
+funded by the European Commission under Grant number 671517 through 
+the Horizon 2020 and 5G-PPP programmes. The authors would like to 
+acknowledge the contributions of their colleagues of the SONATA 
+partner consortium (www.sonata-nfv.eu).
+'''
+
+
+
 from rest_framework import serializers
 from api.models import *
 from api.serializers import *
@@ -113,16 +143,10 @@ class promLabelsSerializer(serializers.Serializer):
 
 class SntPromMetricSerializer(serializers.Serializer):
     name = serializers.CharField()
+    start = serializers.DateTimeField()
+    end = serializers.DateTimeField()
     labels = promLabelsSerializer(many=True)
-
-
-class wsLabelSerializer(serializers.Serializer):
-    label = ''
-
-class SntWSreqSerializer(serializers.Serializer):
-    metric = serializers.CharField()
-    filters = wsLabelSerializer(many=True)
-
+    step = serializers.CharField()
 
 class CommentSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -174,45 +198,44 @@ class UserSerializer(serializers.ModelSerializer):
         "name": "service test1",
         "description": "service test description",
         "host_id": "",
-        "pop_id": "",
         "sonata_usr_id": "123456"
     },
     "functions": [{
         "sonata_func_id": "NF112233",
         "name": "function test 1",
         "description": "function description",
-        "pop_id": "111111",
         "host_id": "555555",
         "metrics": [{
-            "name": "metric_1",
+            "name": "metric test 1",
             "description": "metric test description",
             "threshold": 50,
             "interval": 10,
             "units": "kB",
             "cmd": "cmd1"
-        }, {
-            "name": "metric_2",
+        }, 
+        {
+            "name": "metric test 2",
             "description": "metric test description",
             "threshold": 45,
             "interval": 35,
             "units": "kB",
             "cmd": "cmd2"
         }]
-    }, {
+    },
+    {
         "sonata_func_id": "NF445566",
         "name": "function test 21",
         "description": "function description",
-        "pop_id": "111111",
-        "host_id": "88888",
+        "host_id": "666666",
         "metrics": [{
-            "name": "metric3",
+            "name": "metric test 3",
             "description": "metric test description",
             "threshold": 46,
             "interval": 23,
             "units": "kB",
             "cmd": "cmd3"
         }, {
-            "name": "metric_4",
+            "name": "metric test 4",
             "description": "metric test description",
             "threshold": 89,
             "interval": 34,
@@ -223,16 +246,17 @@ class UserSerializer(serializers.ModelSerializer):
     "rules": [{
         "name": "Rule 4",
         "duration": "4m",
-        "summary": "Rule",
-        "description": "Rule ",
-        "condition": "metric1-metric2> 0.25",
+        "summary": "Rule sweet rule ",
+        "description": "Rule sweet rule ",
+        "condition": "metric1-mmetric2> 0.25",
         "notification_type": 2
-    }, {
+    },
+    {
         "name": "Rule 45",
         "duration": "4m",
         "summary": "Rule sweet rule... ",
         "description": "Rule sweet rule ....",
-        "condition": "metric3-metric4> 0.25",
+        "condition": "metric1-mmetrNewServiceSerializeric2> 0.25",
         "notification_type": 2
     }]
 }
