@@ -23,7 +23,7 @@ class PushGW(Thread):
     def update(self):    
         dt=self.getLastData()
         self.conver2obj(dt)
-        print (self.ws_handler.nm_space_info)
+        #print (self.ws_handler.nm_space_info)
         self.feedWS()
         t = threading.Timer(3.0, self.update)
         t.start()
@@ -36,13 +36,14 @@ class PushGW(Thread):
             return;
         for metric in self.ws_handler.nm_space_info.keys():
             if metric in self.data.keys():
-                print (self.data[metric])
+                #print (self.data[metric])
                 conns = self.ws_handler.nm_space_info[metric]
                 for con in conns:
-                    print (con)
+                    #print (con)
                     resp = {metric:[]}
                     resp[metric]= self.data[metric]
-                    con['wsconn'].send_values(json.dumps(resp))
+                    if 'wsconn' in con.keys():
+                        con['wsconn'].send_values(json.dumps(resp))
                     
     def conver2obj(self, data_):
         if not data_:
