@@ -38,6 +38,14 @@ class NameSpaceHandler(object):
                 break
 
     def remove_nmspace_wsconn(self, client_id):
+        metric_name = self.client_info[client_id]['metric_name']
+        if metric_name in self.nm_space_info.keys():
+            if len(self.nm_space_info[metric_name]) == 1:
+                del(self.nm_space_info[metric_name])
+            else:
+                for con in self.nm_space_info[metric_name]:
+                    if con['cid'] == client_id:
+                        self.nm_space_info[metric_name].remove(con)
         del(self.client_info[client_id])
        
 class ClientWSConnection(websocket.WebSocketHandler):
