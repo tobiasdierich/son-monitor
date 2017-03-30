@@ -1,7 +1,7 @@
 #!/bin/bash
 service supervisor restart
-supervisorctl reread
-supervisorctl update
+a2enmod proxy_wstunnel && \
+a2enmod rewrite && \
 a2enmod wsgi && \
 a2enmod proxy proxy_http && \
 sudo a2ensite ws_domain.conf &&\

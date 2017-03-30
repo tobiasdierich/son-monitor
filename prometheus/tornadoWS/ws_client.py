@@ -10,7 +10,7 @@ def on_message(ws, message):
     print message
 
 def on_error(ws, error):
-    print 'lalakis'+str(error)
+    print str(error)
 
 def on_close(ws):
     print "### closed ###"
