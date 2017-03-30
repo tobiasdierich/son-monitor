@@ -29,6 +29,9 @@ class NameSpaceHandler(object):
     
     def add_nmspace_wsconn(self, client_id, conn):
         #Store the websocket connection corresponding to an existing client.
+        if not client_id in self.client_info.keys():
+            #print 'Socket not found'
+            return -1
         self.client_info[client_id]['wsconn'] = conn
         cid_room = self.client_info[client_id]['metric_name']
 
@@ -36,6 +39,7 @@ class NameSpaceHandler(object):
             if user['cid'] == client_id:
                 user['wsconn'] = conn
                 break
+        return 1
 
     def remove_nmspace_wsconn(self, client_id):
         metric_name = self.client_info[client_id]['metric_name']
@@ -58,8 +62,12 @@ class ClientWSConnection(websocket.WebSocketHandler):
 
     def open(self, client_id):
         self.__clientID = client_id
-        self.__rh.add_nmspace_wsconn(client_id, self)
-        print "WebSocket opened. ClientID = %s" % self.__clientID
+        if self.__rh.add_nmspace_wsconn(client_id, self) == -1:
+            response = {'Status': 'Socket NOT found'}
+            self.send_values(response)
+            self.close()
+            return
+        #print "WebSocket opened. ClientID = %s" % self.__clientID
         print(self.__rh.nm_space_info)
         print(self.__rh.client_info)
         response = {'Status': 'Socket Opened'}

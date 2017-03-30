@@ -20,14 +20,19 @@ class PushGW(Thread):
         while not self.stopped.wait(2):
             self.getLastData()
             
-    def update(self):    
-        dt=self.getLastData()
-        self.conver2obj(dt)
-        #print (self.ws_handler.nm_space_info)
-        self.feedWS()
-        t = threading.Timer(3.0, self.update)
-        t.start()
-        
+    def update(self): 
+        try:   
+            dt=self.getLastData()
+            self.conver2obj(dt)
+            #print (self.ws_handler.nm_space_info)
+            self.feedWS()
+            t = threading.Timer(3.0, self.update)
+            t.start()
+        except:
+            print "Unexpected error"
+            os._exit(-1)
+            pass
+    
     def getData(self):
         return self.data
     
@@ -110,5 +115,4 @@ class PushGW(Thread):
             pass
     
 if __name__ == "__main__":
-    ps = PushGW('http://sp.int3.sonata-nfv.eu:9091/metrics',None)
-     
+    ps = PushGW('http://pushgateway:9091/metrics',None)

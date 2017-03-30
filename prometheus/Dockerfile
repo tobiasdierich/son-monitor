@@ -17,13 +17,14 @@ COPY ./alertMng/ /opt/Monitoring/prometheus/alertMng
 COPY ./tornadoWS/ /opt/Monitoring/prometheus/tornadoWS
 COPY ./promCnfPlugin/PromCnf.conf /etc/apache2/sites-available
 COPY ./tornadoWS/ws_domain.conf /etc/apache2/sites-available
+COPY ./tornadoWS/websocket.conf /etc/supervisor/conf.d/websocket.conf
 COPY ./promCnfPlugin/PromCnf.wsgi /var/www/PromCnf
 COPY ./promCnfPlugin/ /var/www/PromCnf/PromCnf 
 RUN rm /var/www/PromCnf/PromCnf/PromCnf.wsgi     
 
 ADD run.sh /opt/Monitoring/run.sh
 RUN chmod 0755 /opt/Monitoring/run.sh && \
-chmod 0755 /opt/Monitoring/tornadoWS/startWS.sh && \
+chmod 0755 /opt/Monitoring/prometheus/tornadoWS/startWS.sh && \
 chown -R www-data:www-data /opt/Monitoring/prometheus && \
 chmod -R g+w /opt/Monitoring/prometheus 
 
