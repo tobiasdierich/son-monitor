@@ -64,6 +64,23 @@ def api_root(request, format=None):
     })
 ########################################################################################
 
+
+class SntPOPList(generics.ListCreateAPIView):
+    queryset = monitoring_pops.objects.all()
+    serializer_class = SntPOPSerializer
+
+class SntPOPDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = monitoring_pops.objects.all()
+    serializer_class = SntPOPSerializer
+
+class SntSPList(generics.ListCreateAPIView):
+    queryset = monitoring_service_platforms.objects.all()
+    serializer_class = SntSPSerializer
+
+class SntSPDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = monitoring_service_platforms.objects.all()
+    serializer_class = SntSPSerializer
+
 class SntUsersList(generics.ListCreateAPIView):
     queryset = monitoring_users.objects.all()
     serializer_class = SntUserSerializer
@@ -302,6 +319,17 @@ class SntPromMetricData(generics.CreateAPIView):
             response['metrics'] = data['data']
         except KeyError:
             response = data
+        return Response(response)
+
+class SntPromMetricDetail(generics.ListAPIView):
+    serializer_class = promMetricsListSerializer
+    def get(self, request, *args, **kwargs):
+        metric_name  = self.kwargs['metricName']
+        mt = ProData('prometheus',9090)
+        data = mt.getMetricDetail(metric_name)
+        response = {}
+        response['metrics'] = data['data']
+        print response
         return Response(response)
 
  

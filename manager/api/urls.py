@@ -30,10 +30,22 @@ urlpatterns = [
 	url(r'^api/v1/notification/types$', views.SntNotifTypesList.as_view()),
 	url(r'^api/v1/notification/type/(?P<pk>[0-9]+)/$', views.SntNotifTypesDetail.as_view()),
 
+	url(r'^api/v1/pop$', views.SntPOPList.as_view()),
+	url(r'^api/v1/pop/(?P<pk>[0-9]+)/$', views.SntPOPList.as_view()),
+
+	url(r'^api/v1/sp$', views.SntSPList.as_view()),
+	url(r'^api/v1/sp/(?P<pk>[0-9]+)/$', views.SntSPList.as_view()),
+
 	url(r'^api/v1/prometheus/metrics/list$', views.SntPromMetricList.as_view()),
+	url(r'^api/v1/prometheus/metrics/name/(?P<metricName>[^/]+)/$', views.SntPromMetricDetail.as_view()),
 	url(r'^api/v1/prometheus/metrics/data$', views.SntPromMetricData.as_view()),
 
+	url(r'^api/v1/prometheus/pop/(?P<popID>[^/]+)/metrics/list$', views.SntPromMetricList.as_view()),
+	url(r'^api/v1/prometheus/pop/(?P<popID>[^/]+)/metrics/name/(?P<metrpop/(?P<popID>[^/]+)/icName>[^/]+)/$', views.SntPromMetricDetail.as_view()),
+	url(r'^api/v1/prometheus/pop/(?P<popID>[^/]+)/metrics/data$', views.SntPromMetricData.as_view()),
+
 	url(r'^api/v1/ws/new$', views.SntWSreq.as_view()),
+	url(r'^api/v1/ws/pop/(?P<popID>[^/]+)/new$', views.SntWSreq.as_view()),
 
 	url(r'^docs/', include('rest_framework_swagger.urls')),
 	
