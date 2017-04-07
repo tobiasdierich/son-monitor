@@ -41,7 +41,7 @@ urlpatterns = [
 	url(r'^api/v1/prometheus/metrics/data$', views.SntPromMetricData.as_view()),
 
 	url(r'^api/v1/prometheus/pop/(?P<popID>[^/]+)/metrics/list$', views.SntPromMetricList.as_view()),
-	url(r'^api/v1/prometheus/pop/(?P<popID>[^/]+)/metrics/name/(?P<metrpop/(?P<popID>[^/]+)/icName>[^/]+)/$', views.SntPromMetricDetail.as_view()),
+	url(r'^api/v1/prometheus/pop/(?P<popID>[^/]+)/metrics/name/(?P<metricName>[^/]+)/$', views.SntPromMetricDetail.as_view()),
 	url(r'^api/v1/prometheus/pop/(?P<popID>[^/]+)/metrics/data$', views.SntPromMetricData.as_view()),
 
 	url(r'^api/v1/ws/new$', views.SntWSreq.as_view()),
