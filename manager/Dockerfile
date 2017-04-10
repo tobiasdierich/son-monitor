@@ -14,6 +14,6 @@ ADD ./run.sh /opt/Monitoring/run.sh
 RUN chmod 0755 /opt/Monitoring/run.sh
 RUN ls -la /opt/Monitoring/*
 
-EXPOSE 8000 9000 9090
+EXPOSE 8000 9000 9090 8888
 VOLUME ["/var/log/"]
 CMD ["/opt/Monitoring/run.sh"]

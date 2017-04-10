@@ -103,6 +103,11 @@ class ProData(object):
         d = self.HttpGet(self.srv_addr,self.srv_port,path)
         return d
 
+    def getMetricDetail(self, metric_name):
+        path = "".join(("/api/v1/query?query=", str(metric_name)))
+        d = self.HttpGet(self.srv_addr,self.srv_port,path)
+        return d
+
 
     def getTimeRangeData(self, req):
         try:

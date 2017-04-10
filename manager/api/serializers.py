@@ -153,6 +153,24 @@ class CommentSerializer(serializers.Serializer):
     content = SntRulesSerializer(many=True)
     created = serializers.DateTimeField()
 
+class wsLabelSerializer(serializers.Serializer):
+    label = ''
+
+class SntWSreqSerializer(serializers.Serializer):
+    metric = serializers.CharField()
+    filters = wsLabelSerializer(many=True)
+
+class SntSPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = monitoring_service_platforms
+        fields = ('id', 'sonata_sp_id', 'name', 'manager_url','created')
+
+class SntPOPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = monitoring_pops
+        fields = ('id', 'sonata_pop_id','sonata_sp_id' ,'name', 'prom_url','created')
+
+
 ######################################################################################
 '''
 class TestTBSerializer(serializers.Serializer):

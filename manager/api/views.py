@@ -46,7 +46,7 @@ from api.permissions import IsOwnerOrReadOnly
 from rest_framework.reverse import reverse
 from itertools import *
 from django.forms.models import model_to_dict
-import json
+import json, socket
 from drf_multiple_model.views import MultipleModelAPIView
 from httpClient import Http
 
@@ -63,6 +63,23 @@ def api_root(request, format=None):
         'tests': reverse('UserList', request=request, format=format),
     })
 ########################################################################################
+
+
+class SntPOPList(generics.ListCreateAPIView):
+    queryset = monitoring_pops.objects.all()
+    serializer_class = SntPOPSerializer
+
+class SntPOPDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = monitoring_pops.objects.all()
+    serializer_class = SntPOPSerializer
+
+class SntSPList(generics.ListCreateAPIView):
+    queryset = monitoring_service_platforms.objects.all()
+    serializer_class = SntSPSerializer
+
+class SntSPDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = monitoring_service_platforms.objects.all()
+    serializer_class = SntSPSerializer
 
 class SntUsersList(generics.ListCreateAPIView):
     queryset = monitoring_users.objects.all()
@@ -254,6 +271,36 @@ class SntPromMetricList(generics.RetrieveAPIView):
         print response
         return Response(response)
 
+
+class SntWSreq(generics.CreateAPIView):
+    serializer_class = SntWSreqSerializer
+
+    def post(self, request, *args, **kwargs):
+        filters = []
+        psw = socket.gethostbyname('pushgateway')
+        if 'filters' in request.data.keys():
+            filters = request.data['filters']
+        metric = request.data['metric']
+        url = "http://"+psw+":8002/new/?metric="+metric+"&params="+json.dumps(filters).replace(" ", "")
+        print url
+        cl = Http()
+        rsp = cl.GET(url,[])
+        print url
+        response = {}
+        try:
+            if 'name_space' in rsp.keys():
+                response['status'] = "SUCCESS"
+                response['metric'] = request.data['metric']
+                response['ws_url'] = "ws://"+psw+":8002/ws/"+str(rsp['name_space'])
+            else:
+                response['status'] = "FAIL"
+                response['ws_url'] = None
+        except KeyError:
+            response = data
+            pass
+        return Response(response)
+
+
 class SntPromMetricData(generics.CreateAPIView):
     serializer_class = SntPromMetricSerializer
     '''
@@ -274,6 +321,17 @@ class SntPromMetricData(generics.CreateAPIView):
             response['metrics'] = data['data']
         except KeyError:
             response = data
+        return Response(response)
+
+class SntPromMetricDetail(generics.ListAPIView):
+    serializer_class = promMetricsListSerializer
+    def get(self, request, *args, **kwargs):
+        metric_name  = self.kwargs['metricName']
+        mt = ProData('prometheus',9090)
+        data = mt.getMetricDetail(metric_name)
+        response = {}
+        response['metrics'] = data['data']
+        print response
         return Response(response)
 
  

@@ -168,3 +168,32 @@ class ServiceConf(object):
         self.functions = functions
         self.metrics = metrics
         self.rules = rules
+
+class monitoring_service_platforms(models.Model):
+    name = models.CharField(max_length=30, blank=True)
+    manager_url = models.CharField(max_length=128, blank=True)
+    sonata_sp_id = models.CharField(max_length=60)
+    created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "monitoring_service_platforms"
+        ordering = ('created',)
+        managed = True
+
+    def __unicode__(self):
+        return u'%s %s %s' % (self.name, self.manager_url, self.sonata_sp_id)
+
+class monitoring_pops(models.Model):
+    name = models.CharField(max_length=30, blank=True)
+    prom_url = models.CharField(max_length=128, blank=True)
+    sonata_sp_id = models.CharField(max_length=60)
+    sonata_pop_id = models.CharField(max_length=60)
+    created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "monitoring_pops"
+        ordering = ('created',)
+        managed = True
+
+    def __unicode__(self):
+        return u'%s %s %s' % (self.name, self.prom_url, self.sonata_pop_id, self.sonata_sp_id)
