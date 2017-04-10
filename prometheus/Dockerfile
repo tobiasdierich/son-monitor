@@ -30,6 +30,6 @@ chmod -R g+w /opt/Monitoring/prometheus
 
 RUN ls -la /opt/Monitoring/*
 
-EXPOSE 9090 9089 8001
+EXPOSE 9090 9089 8002
 
 CMD ["/opt/Monitoring/run.sh"]
