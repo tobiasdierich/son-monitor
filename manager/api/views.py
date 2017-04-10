@@ -281,7 +281,7 @@ class SntWSreq(generics.CreateAPIView):
         if 'filters' in request.data.keys():
             filters = request.data['filters']
         metric = request.data['metric']
-        url = "http://"+psw+":8001/new/?metric="+metric+"&params="+json.dumps(filters).replace(" ", "")
+        url = "http://"+psw+":8002/new/?metric="+metric+"&params="+json.dumps(filters).replace(" ", "")
         print url
         cl = Http()
         rsp = cl.GET(url,[])
@@ -291,7 +291,7 @@ class SntWSreq(generics.CreateAPIView):
             if 'name_space' in rsp.keys():
                 response['status'] = "SUCCESS"
                 response['metric'] = request.data['metric']
-                response['ws_url'] = "ws://"+psw+":8001/ws/"+str(rsp['name_space'])
+                response['ws_url'] = "ws://"+psw+":8002/ws/"+str(rsp['name_space'])
             else:
                 response['status'] = "FAIL"
                 response['ws_url'] = None
