@@ -42,7 +42,34 @@ LEXERS = [item for item in get_all_lexers() if item[1]]
 LANGUAGE_CHOICES = sorted([(item[1][0], item[0]) for item in LEXERS])
 STYLE_CHOICES = sorted((item, item) for item in get_all_styles())
 
+class monitoring_service_platforms(models.Model):
+    name = models.CharField(max_length=30, blank=True)
+    manager_url = models.CharField(max_length=128, blank=True)
+    sonata_sp_id = models.CharField(max_length=60)
+    created = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        db_table = "monitoring_service_platforms"
+        ordering = ('created',)
+        managed = True
+
+    def __unicode__(self):
+        return u'%s %s %s' % (self.name, self.manager_url, self.sonata_sp_id)
+
+class monitoring_pops(models.Model):
+    name = models.CharField(max_length=30, blank=True)
+    prom_url = models.CharField(max_length=128, blank=True)
+    sonata_sp_id = models.CharField(max_length=60)
+    sonata_pop_id = models.CharField(max_length=60)
+    created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "monitoring_pops"
+        ordering = ('created',)
+        managed = True
+
+    def __unicode__(self):
+        return u'%s %s %s' % (self.name, self.prom_url, self.sonata_pop_id, self.sonata_sp_id)
 
 class monitoring_users(models.Model):
     first_name = models.CharField(max_length=30, blank=True)
@@ -150,7 +177,7 @@ class monitoring_rules(models.Model):
         managed = True
 
     def __unicode__(self):
-        return u'%s %s %s' % (self.name, self.description, self.cmd)
+        return u'%s %s  %s %s' % (self.name, self.description, self.condition, str(self.service))
 
 class prom_metric(object):
     def __init__(self, name):
@@ -168,32 +195,3 @@ class ServiceConf(object):
         self.functions = functions
         self.metrics = metrics
         self.rules = rules
-
-class monitoring_service_platforms(models.Model):
-    name = models.CharField(max_length=30, blank=True)
-    manager_url = models.CharField(max_length=128, blank=True)
-    sonata_sp_id = models.CharField(max_length=60)
-    created = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        db_table = "monitoring_service_platforms"
-        ordering = ('created',)
-        managed = True
-
-    def __unicode__(self):
-        return u'%s %s %s' % (self.name, self.manager_url, self.sonata_sp_id)
-
-class monitoring_pops(models.Model):
-    name = models.CharField(max_length=30, blank=True)
-    prom_url = models.CharField(max_length=128, blank=True)
-    sonata_sp_id = models.CharField(max_length=60)
-    sonata_pop_id = models.CharField(max_length=60)
-    created = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        db_table = "monitoring_pops"
-        ordering = ('created',)
-        managed = True
-
-    def __unicode__(self):
-        return u'%s %s %s' % (self.name, self.prom_url, self.sonata_pop_id, self.sonata_sp_id)
