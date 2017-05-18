@@ -1,3 +1,22 @@
+ALERT VTC_ALL_PACKET
+  IF mbits_packets_all{exported_job = "vtc_db"} > 1500
+  FOR 5s
+  LABELS {exported_job = "vtc_db"}
+  ANNOTATIONS {
+    summary = "VTC all packet threshold exceeded ",
+    description = "VTC all packet threshold exceeded {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
+  }
+
+ALERT VTC_HTTP_PACKET
+  IF mbits_packets_http{exported_job = "vtc_db"} > 10000
+  FOR 5s
+  LABELS {exported_job = "vtc_db"}
+  ANNOTATIONS {
+    summary = "VTC HTTP packet threshold exceeded ",
+    description = "VTC HTTP packet threshold exceeded {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
+  }
+
+
 ALERT sp_cpu_usage_95_perc
   IF vm_cpu_perc{exported_job = "vm"} > 95
   FOR 30m
