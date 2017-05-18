@@ -69,7 +69,16 @@ class SntPOPList(generics.ListCreateAPIView):
     queryset = monitoring_pops.objects.all()
     serializer_class = SntPOPSerializer
 
-class SntPOPDetail(generics.RetrieveUpdateDestroyAPIView):
+class SntPOPperSPList(generics.ListAPIView):
+    #queryset = monitoring_functions.objects.all()
+    serializer_class = SntPOPSerializer
+
+    def get_queryset(self):
+        queryset = monitoring_pops.objects.all()
+        service_platform_id  = self.kwargs['spID']
+        return queryset.filter(sonata_sp_id=service_platform_id)
+
+class SntPOPDetail(generics.DestroyAPIView):
     queryset = monitoring_pops.objects.all()
     serializer_class = SntPOPSerializer
 
@@ -77,15 +86,70 @@ class SntSPList(generics.ListCreateAPIView):
     queryset = monitoring_service_platforms.objects.all()
     serializer_class = SntSPSerializer
 
-class SntSPDetail(generics.RetrieveUpdateDestroyAPIView):
+class SntSPDetail(generics.DestroyAPIView):
     queryset = monitoring_service_platforms.objects.all()
     serializer_class = SntSPSerializer
+
+class SntPromMetricPerPOPList(generics.RetrieveAPIView):
+    serializer_class = promMetricsListSerializer
+    def get(self, request, *args, **kwargs):
+        mt = ProData('prometheus',9090)
+        data = mt.getMetrics()
+        response = {}
+        response['metrics'] = data['data']
+        print response
+        return Response(response)
+
+class SntPromMetricPerPOPDetail(generics.ListAPIView):
+    serializer_class = promMetricsListSerializer
+    def get(self, request, *args, **kwargs):
+        metric_name  = self.kwargs['metricName']
+        mt = ProData('prometheus',9090)
+        data = mt.getMetricDetail(metric_name)
+        response = {}
+        response['metrics'] = data['data']
+        print response
+        return Response(response)
+
+class SntPromMetricPerPOPData(generics.CreateAPIView):
+    serializer_class = SntPromMetricSerializer
+    '''
+    {
+    "name": "up",
+    "start": "2016-02-28T20:10:30.786Z",
+    "end": "2016-03-03T20:11:00.781Z",
+    "step": "1h",
+    "labels": [{"labeltag":"instance", "labelid":"192.168.1.39:9090"},{"labeltag":"group", "labelid":"development"}]
+    }
+    '''
+    def post(self, request, *args, **kwargs):
+        mt = ProData('prometheus',9090)
+        data = mt.getTimeRangeData(request.data)
+        response = {}
+        #print data
+        try:
+            response['metrics'] = data['data']
+        except KeyError:
+            response = data
+        return Response(response)
+
+class SntPromSrvPerPOPConf(generics.ListAPIView):
+    #start from here
+    serializer_class = promMetricsListSerializer
+    def get(self, request, *args, **kwargs):
+        metric_name  = self.kwargs['metricName']
+        mt = ProData('prometheus',9090)
+        data = mt.getMetricDetail(metric_name)
+        response = {}
+        response['metrics'] = data['data']
+        print response
+        return Response(response)
 
 class SntUsersList(generics.ListCreateAPIView):
     queryset = monitoring_users.objects.all()
     serializer_class = SntUserSerializer
 
-class SntUsersDetail(generics.RetrieveUpdateDestroyAPIView):
+class SntUsersDetail(generics.DestroyAPIView):
     queryset = monitoring_users.objects.all()
     serializer_class = SntUserSerializer
 
@@ -96,7 +160,7 @@ class SntServicesPerUserList(generics.ListAPIView):
     def get_queryset(self):
         queryset = monitoring_services.objects.all()
         userid  = self.kwargs['usrID']
-        return queryset.filter(user=userid)
+        return queryset.filter(user__sonata_userid=userid)
 
 class SntServicesList(generics.ListCreateAPIView):
     queryset = monitoring_services.objects.all()
@@ -107,13 +171,31 @@ class SntFunctionsPerServiceList(generics.ListAPIView):
     serializer_class = SntFunctionsFullSerializer
 
     def get_queryset(self):
-        queryset = monitoring_functions.objects.all()
+        queryset = monitoring_functions.objects.all() 
         srvid  = self.kwargs['srvID']
         return queryset.filter(service__sonata_srv_id=srvid)
 
-class SntServicesDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = monitoring_services.objects.all()
-    serializer_class = SntServicesSerializer
+class SntServicesDetail(generics.DestroyAPIView):
+    serializer_class = SntServicesDelSerializer
+
+    def delete(self, request, *args, **kwargs):
+        self.lookup_field = 'sonata_srv_id'
+        queryset = monitoring_services.objects.all()
+        srvid  = self.kwargs['sonata_srv_id']
+        
+        queryset.filter(sonata_srv_id=srvid)
+        print queryset.count()
+
+        if queryset.count() > 0:
+            print 'has to be deleted'
+            queryset.delete()
+            cl = Http()
+            rsp = cl.DELETE('http://prometheus:9089/prometheus/rules/'+str(srvid),[])            
+            print rsp
+
+            return  Response({'staus':"service removed"}, status=status.HTTP_204_NO_CONTENT)
+        else: 
+            return  Response({'status':"service not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class SntFunctionsList(generics.ListCreateAPIView):
     queryset = monitoring_functions.objects.all()
@@ -249,17 +331,43 @@ class SntNewServiceConf(generics.CreateAPIView):
             else:
                 return 'Undefined'
 
-class SntMetricsDetail(generics.RetrieveUpdateDestroyAPIView):
+class SntMetricsDetail(generics.DestroyAPIView):
     queryset = monitoring_metrics.objects.all()
     serializer_class = SntMetricsSerializer
 
-class SntRulesList(generics.ListCreateAPIView):
+class SntRulesList(generics.ListAPIView):
     queryset = monitoring_rules.objects.all()
     serializer_class = SntRulesSerializer
 
-class SntRulesDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = monitoring_rules.objects.all()
+class SntRulesPerServiceList(generics.ListAPIView):
+    #queryset = monitoring_functions.objects.all()
     serializer_class = SntRulesSerializer
+
+    def get_queryset(self):
+        queryset = monitoring_rules.objects.all()
+        srvid  = self.kwargs['srvID']
+        return queryset.filter(service__sonata_srv_id=srvid)
+
+
+class SntRulesDetail(generics.DestroyAPIView):
+    #queryset = monitoring_rules.objects.all()
+    serializer_class = SntRulesSerializer
+
+    def delete(self, request, *args, **kwargs):
+        queryset = monitoring_rules.objects.all()
+        srvid  = self.kwargs['sonata_srv_id']
+        fq=queryset.filter(service__sonata_srv_id=srvid)
+        print fq
+        print fq.count()
+
+        if fq.count() > 0:
+            fq.delete()
+            cl = Http()
+            rsp = cl.DELETE('http://prometheus:9089/prometheus/rules/'+str(srvid),[])            
+            print rsp
+            return  Response({'staus':"service's rules removed"}, status=status.HTTP_204_NO_CONTENT)
+        else: 
+            return  Response({'status':"rules not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class SntPromMetricList(generics.RetrieveAPIView):
     serializer_class = promMetricsListSerializer
@@ -333,5 +441,14 @@ class SntPromMetricDetail(generics.ListAPIView):
         response['metrics'] = data['data']
         print response
         return Response(response)
+
+class SntPromSrvConf(generics.ListAPIView):
+    #start from here
+    def get(self, request, *args, **kwargs):
+        url = 'http://prometheus:9089/prometheus/configuration'
+        cl = Http()
+        rsp = cl.GET(url,[])
+        print rsp
+        return Response({'config':rsp}, status=status.HTTP_200_OK)
 
  
