@@ -37,6 +37,7 @@ app = Flask(__name__)
 global promPath 
 promPath = '/opt/Monitoring/prometheus/'
 
+
 @app.route("/")
 def hello():
     urls =  "I am alive..."
@@ -122,10 +123,17 @@ def api_conf():
         with open(promPath+'prometheus.yml', 'r') as conf_file:
             conf = yaml.load(conf_file)
             js_obj = json.dumps(conf)
-            print(js_obj)
+            #print(js_obj)
         return js_obj
     elif request.method == 'POST':    
-        return 'Not supported yet'
+        conf = json.loads(request.data)
+        rf = fileBuilder('prometheus.yml', conf, promPath)
+        resp=rf.buildConf()
+        message = {
+                'status': 200,
+                'message': resp,
+            }
+        return jsonify(message)
     
 
 
@@ -142,10 +150,15 @@ def not_found(error=None):
 
 def reloadServer():
     httpServ = httplib.HTTPConnection("localhost", 9090)
-    httpServ.connect()
-    httpServ.request("POST", "/-/reload")
-    response = httpServ.getresponse()
-    httpServ.close()
+    try:
+        httpServ.connect()
+        httpServ.request("POST", "/-/reload")
+        response = httpServ.getresponse()
+        print response.status
+        httpServ.close()
+        return 'SUCCESS'
+    except:
+        return 'FAILED'
 
 
 
