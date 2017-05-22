@@ -8,7 +8,7 @@ from api import views
 
 urlpatterns = [
 	url(r'^api/v1/users$', views.SntUsersList.as_view()),
-	url(r'^api/v1/user/(?P<pk>[0-9]+)/$', views.SntUsersDetail.as_view()),
+	url(r'^api/v1/users/(?P<pk>[0-9]+)/$', views.SntUsersDetail.as_view()),
 
 	url(r'^api/v1/services$', views.SntServicesList.as_view()),
 	url(r'^api/v1/services/user/(?P<usrID>[^/]+)/$', views.SntServicesPerUserList.as_view()),

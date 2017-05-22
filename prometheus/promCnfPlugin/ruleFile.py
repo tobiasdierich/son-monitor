@@ -31,7 +31,7 @@ from shutil import copyfile
 
 class fileBuilder(object):
 
-    def __init__(self, serviceID, rules, path):
+    def __init__(self, file_name, cnfg, path):
         self.file_name = file_name
         self.configuration = cnfg
         self.prometheusPth = path

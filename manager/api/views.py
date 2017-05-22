@@ -197,7 +197,7 @@ class SntServicesDetail(generics.DestroyAPIView):
         else: 
             return  Response({'status':"service not found"}, status=status.HTTP_404_NOT_FOUND)
 
-class SntFunctionsList(generics.ListCreateAPIView):
+class SntFunctionsList(generics.ListAPIView):
     queryset = monitoring_functions.objects.all()
     serializer_class = SntFunctionsSerializer
 
@@ -209,11 +209,11 @@ class SntNotifTypesList(generics.ListCreateAPIView):
     queryset = monitoring_notif_types.objects.all()
     serializer_class = SntNotifTypeSerializer
 
-class SntNotifTypesDetail(generics.RetrieveUpdateDestroyAPIView):
+class SntNotifTypesDetail(generics.DestroyAPIView):
     queryset = monitoring_notif_types.objects.all()
     serializer_class = SntNotifTypeSerializer
 
-class SntMetricsList(generics.ListCreateAPIView):
+class SntMetricsList(generics.ListAPIView):
     queryset = monitoring_metrics.objects.all()
     serializer_class = SntMetricsSerializer
 
