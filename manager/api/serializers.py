@@ -119,14 +119,27 @@ class SntNotifTypeSerializer(serializers.ModelSerializer):
         model = monitoring_notif_types
         fields = ('id', 'type',)
 
+class SntServicesLightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = monitoring_services
+        fields = ('sonata_srv_id', 'name')
+        lookup_field = 'sonata_srv_id'
+
 class SntRulesSerializer(serializers.ModelSerializer):
     #service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all()) 
     #notification_type = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_notif_types.objects.all())
-    service = SntServicesSerializer() 
+    service = service = SntServicesLightSerializer()
     notification_type = SntNotifTypeSerializer()
     class Meta:
         model = monitoring_rules
         fields = ('id', 'name', 'duration', 'summary', 'description', 'condition', 'notification_type','service', 'created',)
+
+
+class SntRulesPerSrvSerializer(serializers.ModelSerializer):
+    notification_type = SntNotifTypeSerializer() #karpa
+    class Meta:
+        model = monitoring_rules
+        fields = ('id', 'name', 'duration', 'summary', 'description', 'condition', 'notification_type', 'created',)
 
 class SntNewFunctionsSerializer(serializers.ModelSerializer):
     #service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())

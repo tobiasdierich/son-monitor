@@ -341,7 +341,7 @@ class SntRulesList(generics.ListAPIView):
 
 class SntRulesPerServiceList(generics.ListAPIView):
     #queryset = monitoring_functions.objects.all()
-    serializer_class = SntRulesSerializer
+    serializer_class = SntRulesPerSrvSerializer
 
     def get_queryset(self):
         queryset = monitoring_rules.objects.all()
