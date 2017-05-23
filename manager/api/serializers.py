@@ -128,7 +128,7 @@ class SntServicesLightSerializer(serializers.ModelSerializer):
 class SntRulesSerializer(serializers.ModelSerializer):
     #service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all()) 
     #notification_type = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_notif_types.objects.all())
-    service = service = SntServicesLightSerializer()
+    service = SntServicesLightSerializer()
     notification_type = SntNotifTypeSerializer()
     class Meta:
         model = monitoring_rules
