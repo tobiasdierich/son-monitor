@@ -46,7 +46,7 @@ from api.permissions import IsOwnerOrReadOnly
 from rest_framework.reverse import reverse
 from itertools import *
 from django.forms.models import model_to_dict
-import json, socket
+import json, socket, os
 from drf_multiple_model.views import MultipleModelAPIView
 from httpClient import Http
 
@@ -64,6 +64,29 @@ def api_root(request, format=None):
     })
 ########################################################################################
 
+def is_json(myjson):
+  try:
+    json_object = json.loads(myjson)
+  except ValueError, e:
+    return False
+  return True
+
+def getPromIP(pop_id_):
+    arch = os.environ.get('MON_ARCH','CENTRALIZED')
+    if arch != 'CENTRALIZED':
+        pop_id  = pop_id_
+        pop = monitoring_pops.objects.values('prom_url').filter(sonata_pop_id=pop_id)
+        if pop.count() == 0:
+            return Response({'status':"Undefined POP"}, status=status.HTTP_404_NOT_FOUND)
+        elif pop.count() >1:
+            return Response({'status':"Many POPs with same id"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            prom_url = monitoring_pops.objects.values('prom_url').filter(sonata_pop_id=pop_id)[0]['prom_url']
+            if prom_url == 'undefined':
+                return Response({'status':"Undefined Prometheus address"}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        prom_url = 'localhost'
+    return prom_url
 
 class SntPOPList(generics.ListCreateAPIView):
     queryset = monitoring_pops.objects.all()
