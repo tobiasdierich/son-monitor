@@ -95,13 +95,13 @@ class SntPOPList(generics.ListCreateAPIView):
         return queryset
 
     def getCfgfile(self):
-        url = 'http://localhost:5000/prometheus/configuration'
+        url = 'http://localhost:9089/prometheus/configuration'
         cl = Http()
         rsp = cl.GET(url,[])
         return rsp
 
     def postCfgfile(self,confFile):
-        url = 'http://localhost:5000/prometheus/configuration'
+        url = 'http://localhost:9089/prometheus/configuration'
         cl = Http()
         rsp = cl.POST(url,[],json.dumps(confFile))            
         return rsp
@@ -189,13 +189,13 @@ class SntPOPperSPList(generics.ListAPIView):
 class SntPOPDetail(generics.DestroyAPIView):
     serializer_class = SntPOPSerializer
     def getCfgfile(self):
-        url = 'http://localhost:5000/prometheus/configuration'
+        url = 'http://localhost:9089/prometheus/configuration'
         cl = Http()
         rsp = cl.GET(url,[])
         return rsp
 
     def postCfgfile(self,confFile):
-        url = 'http://localhost:5000/prometheus/configuration'
+        url = 'http://localhost:9089/prometheus/configuration'
         cl = Http()
         rsp = cl.POST(url,[],json.dumps(confFile))            
         return rsp
@@ -305,7 +305,7 @@ class SntPromSrvPerPOPConf(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         pop_id = self.kwargs['popID']
         prom_url = getPromIP(pop_id)
-        url = 'http://'+prom_url+':5000/prometheus/configuration'
+        url = 'http://'+prom_url+':9089/prometheus/configuration'
         cl = Http()
         rsp = cl.GET(url,[])
         print rsp
@@ -662,7 +662,7 @@ class SntRuleconf(generics.CreateAPIView):
 
         if len(rules) > 0:
             cl = Http()
-            rsp = cl.POST('http://'+prometheus+':5000/prometheus/rules',[],json.dumps(rls))            
+            rsp = cl.POST('http://'+prometheus+':9089/prometheus/rules',[],json.dumps(rls))            
             if rsp == 200:
                 return Response({'status':"success","rules":rules_status})
             else:
