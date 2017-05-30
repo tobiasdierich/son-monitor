@@ -89,8 +89,93 @@ def getPromIP(pop_id_):
     return prom_url
 
 class SntPOPList(generics.ListCreateAPIView):
-    queryset = monitoring_pops.objects.all()
     serializer_class = SntPOPSerializer
+    def get_queryset(self):
+        queryset = monitoring_pops.objects.all()
+        return queryset
+
+    def getCfgfile(self):
+        url = 'http://localhost:5000/prometheus/configuration'
+        cl = Http()
+        rsp = cl.GET(url,[])
+        return rsp
+
+    def postCfgfile(self,confFile):
+        url = 'http://localhost:5000/prometheus/configuration'
+        cl = Http()
+        rsp = cl.POST(url,[],json.dumps(confFile))            
+        return rsp
+
+
+    def updatePromConf(self, pop):
+        arch = os.environ.get('MON_ARCH','CENTRALIZED')
+        if arch == 'CENTRALIZED':
+            return
+        updated = False
+        file=self.getCfgfile()
+        if 'scrape_configs' in file: 
+            for obj in file['scrape_configs']:
+                if 'target_groups' in obj:
+                    for trg in obj['target_groups']:
+                        if 'labels' in trg:
+                            if 'pop_id' in trg['labels']:
+                                if trg['labels']['pop_id'] == pop['sonata_pop_id'] and trg['labels']['sp_id'] ==  pop['sonata_sp_id']:
+                                    trg['labels']['name'] =  pop['name']
+                                    trg['targets']=[]
+                                    trg['targets'].append(pop['prom_url'])
+                                    updated = True
+                                    continue
+            if not updated:
+                newTrg={}
+                newTrg['labels']={}
+                newTrg['labels']['pop_id'] = pop['sonata_pop_id']
+                newTrg['labels']['sp_id'] =  pop['sonata_sp_id']
+                newTrg['labels']['name'] =  pop['name']
+                newTrg['targets']=[]
+                newTrg['targets'].append(pop['prom_url'])
+                obj['target_groups'].append(newTrg)
+        else:
+            return 'NOT FOUND scrape_configs'
+
+        if not is_json(json.dumps(file)):
+            return Response({'status':"Prometheus reconfiguration failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        code = self.postCfgfile(file)
+        return code 
+
+    def post(self, request, *args, **kwargs):
+        pop_id = request.data['sonata_pop_id']
+        sp_id = request.data['sonata_sp_id']
+        name = 'undefined'
+        prom_url = 'udefined'
+        if 'name' in request.data:
+            name = request.data['name']
+        if 'prom_url' in request.data:
+            prom_url = request.data['prom_url']
+
+        sp = monitoring_service_platforms.objects.all().filter(sonata_sp_id=sp_id)
+        if sp.count() == 0:
+            sp = monitoring_service_platforms(sonata_sp_id=sp_id, name='undefined', manager_url='127.0.0.1')
+            sp.save()
+        pop = monitoring_pops.objects.all().filter(sonata_pop_id=pop_id,sonata_sp_id=sp_id)
+        if pop.count() == 1:
+            #pop = monitoring_pops(sonata_pop_id=pop_id,sonata_sp_id=sp_id, name=name,prom_url=prom_url)
+            code = self.updatePromConf(request.data)
+            if code == 200:
+                pop.update(name=name,prom_url=prom_url)
+            else:
+                return Response({'status':"Prometheus reconfiguration failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        elif pop.count()>1:
+            return Response({'status':"Many POPs with same id"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            code = self.updatePromConf(request.data)
+            if code == 200:
+                pop = monitoring_pops(sonata_pop_id=pop_id,sonata_sp_id=sp_id, name=name,prom_url=prom_url)
+                pop.save()
+            else:
+                return Response({'status':"Prometheus reconfiguration failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(monitoring_pops.objects.values().filter(sonata_pop_id=pop_id,sonata_sp_id=sp_id))
 
 class SntPOPperSPList(generics.ListAPIView):
     #queryset = monitoring_functions.objects.all()
