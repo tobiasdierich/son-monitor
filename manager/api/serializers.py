@@ -45,6 +45,7 @@ class SntPOPSerializer(serializers.ModelSerializer):
     class Meta:
         model = monitoring_pops
         fields = ('id', 'sonata_pop_id','sonata_sp_id' ,'name', 'prom_url','created')
+        lookup_field = 'sonata_pop_id'
 
 class SntUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -136,7 +137,7 @@ class SntRulesSerializer(serializers.ModelSerializer):
 
 
 class SntRulesPerSrvSerializer(serializers.ModelSerializer):
-    notification_type = SntNotifTypeSerializer() #karpa
+    notification_type = SntNotifTypeSerializer()
     class Meta:
         model = monitoring_rules
         fields = ('id', 'name', 'duration', 'summary', 'description', 'condition', 'notification_type', 'created',)
@@ -200,7 +201,8 @@ class SntPOPSerializer(serializers.ModelSerializer):
         model = monitoring_pops
         fields = ('id', 'sonata_pop_id','sonata_sp_id' ,'name', 'prom_url','created')
 
-
+class SntRulesConfSerializer(serializers.Serializer):
+    rules = SntRulesPerSrvSerializer(many=True)
 ######################################################################################
 '''
 class TestTBSerializer(serializers.Serializer):
