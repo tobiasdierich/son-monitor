@@ -85,7 +85,7 @@ def getPromIP(pop_id_):
             if prom_url == 'undefined':
                 return Response({'status':"Undefined Prometheus address"}, status=status.HTTP_404_NOT_FOUND)
     else:
-        prom_url = 'localhost'
+        prom_url = 'prometheus'
     return prom_url
 
 class SntPOPList(generics.ListCreateAPIView):
@@ -253,7 +253,9 @@ class SntSPDetail(generics.DestroyAPIView):
 class SntPromMetricPerPOPList(generics.RetrieveAPIView):
     serializer_class = promMetricsListSerializer
     def get(self, request, *args, **kwargs):
-        mt = ProData('prometheus',9090)
+        pop_id = self.kwargs['popID']
+        prom_url = getPromIP(pop_id)
+        mt = ProData(prom_url,9090)
         data = mt.getMetrics()
         response = {}
         response['metrics'] = data['data']
@@ -264,7 +266,9 @@ class SntPromMetricPerPOPDetail(generics.ListAPIView):
     serializer_class = promMetricsListSerializer
     def get(self, request, *args, **kwargs):
         metric_name  = self.kwargs['metricName']
-        mt = ProData('prometheus',9090)
+        pop_id = self.kwargs['popID']
+        prom_url = getPromIP(pop_id)
+        mt = ProData(prom_url,9090)
         data = mt.getMetricDetail(metric_name)
         response = {}
         response['metrics'] = data['data']
@@ -283,7 +287,9 @@ class SntPromMetricPerPOPData(generics.CreateAPIView):
     }
     '''
     def post(self, request, *args, **kwargs):
-        mt = ProData('prometheus',9090)
+        pop_id = self.kwargs['popID']
+        prom_url = getPromIP(pop_id)
+        mt = ProData(prom_url,9090)
         data = mt.getTimeRangeData(request.data)
         response = {}
         #print data
@@ -297,13 +303,13 @@ class SntPromSrvPerPOPConf(generics.ListAPIView):
     #start from here
     serializer_class = promMetricsListSerializer
     def get(self, request, *args, **kwargs):
-        metric_name  = self.kwargs['metricName']
-        mt = ProData('prometheus',9090)
-        data = mt.getMetricDetail(metric_name)
-        response = {}
-        response['metrics'] = data['data']
-        print response
-        return Response(response)
+        pop_id = self.kwargs['popID']
+        prom_url = getPromIP(pop_id)
+        url = 'http://'+prom_url+':5000/prometheus/configuration'
+        cl = Http()
+        rsp = cl.GET(url,[])
+        print rsp
+        return Response({'config':rsp}, status=status.HTTP_200_OK)
 
 class SntUsersList(generics.ListCreateAPIView):
     queryset = monitoring_users.objects.all()
@@ -435,13 +441,21 @@ class SntNewServiceConf(generics.CreateAPIView):
         srv_host_id = ''
         if service['pop_id']: 
             srv_pop_id = service['pop_id']
+            pop = monitoring_pops.objects.all().filter(sonata_pop_id=srv_pop_id) 
+            if pop.count() == 0: 
+                pop = monitoring_pops(sonata_pop_id=srv_pop_id, sonata_sp_id="undefined", name="undefined", prom_url="undefined") #karpa
+                pop.save()  
         if service['host_id']: 
             srv_host_id = service['host_id']
         srv = monitoring_services(sonata_srv_id=service['sonata_srv_id'], name=service['name'], description=service['description'], host_id=srv_host_id, user=usr, pop_id=srv_pop_id)
         srv.save()
         for f in functions:
+            fnc_pop_id = f['pop_id']
+            pop = monitoring_pops.objects.all().filter(sonata_pop_id=fnc_pop_id)   
+            if pop.count() == 0:    
+                pop = monitoring_pops(sonata_pop_id=fnc_pop_id, sonata_sp_id="undefined", name="undefined", prom_url="undefined") 
+                pop.save() 
             functions_status=len(functions)
-            print f['pop_id']
             func = monitoring_functions(service=srv ,host_id=f['host_id'] ,name=f['name'] , sonata_func_id=f['sonata_func_id'] , description=f['description'], pop_id=f['pop_id'])
             func.save()
             for m in f['metrics']:
