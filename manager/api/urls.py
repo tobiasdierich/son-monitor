@@ -26,6 +26,7 @@ urlpatterns = [
 
 	url(r'^api/v1/alerts/rules$', views.SntRulesList.as_view()),
 	url(r'^api/v1/alerts/rules/service/(?P<srvID>[^/]+)/$', views.SntRulesPerServiceList.as_view()),
+	url(r'^api/v1/alerts/rules/service/(?P<srvID>[^/]+)/configuration$', views.SntRuleconf.as_view()),
 	url(r'^api/v1/alerts/rule/(?P<sonata_srv_id>[^/]+)/$', views.SntRulesDetail.as_view()),
 
 	url(r'^api/v1/notification/types$', views.SntNotifTypesList.as_view()),

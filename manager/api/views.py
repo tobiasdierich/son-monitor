@@ -570,7 +570,7 @@ class SntWSreq(generics.CreateAPIView):
         print url
         response = {}
         try:
-            if 'name_space' in rsp.keys():
+            if 'name_space' in rsp:
                 response['status'] = "SUCCESS"
                 response['metric'] = request.data['metric']
                 response['ws_url'] = "ws://"+psw+":8002/ws/"+str(rsp['name_space'])
@@ -582,6 +582,93 @@ class SntWSreq(generics.CreateAPIView):
             pass
         return Response(response)
 
+class SntWSreqPerPOP(generics.CreateAPIView):
+    serializer_class = SntWSreqSerializer
+
+    def post(self, request, *args, **kwargs):
+        filters = []
+        if 'filters' in request.data.keys():
+            filters = request.data['filters']
+        metric = request.data['metric']
+        pop_id = self.kwargs['popID']
+        prom_url = getPromIP(pop_id)
+        url = "http://"+prom_url+":8888/new/?metric="+metric+"&params="+json.dumps(filters).replace(" ", "")
+        #print url
+        cl = Http()
+        rsp = cl.GET(url,[])
+        print rsp
+        response = {}
+        try:
+            if 'name_space' in rsp:
+                response['status'] = "SUCCESS"
+                response['metric'] = request.data['metric']
+                response['ws_url'] = "ws://"+prom_url+":8888/ws/"+str(rsp['name_space'])
+            else:
+                response['status'] = "FAIL"
+                response['ws_url'] = None
+        except KeyError:
+            response = data
+            pass
+        return Response(response)
+
+class SntRuleconf(generics.CreateAPIView):
+    serializer_class = SntRulesConfSerializer
+
+    def post(self, request, *args, **kwargs):
+        srvid  = self.kwargs['srvID']
+        if 'rules' in request.data.keys():
+            rules = request.data['rules']
+        else:
+            return Response({'error':'Undefined rules'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        #Check if service exists
+        srv = monitoring_services.objects.all().filter(sonata_srv_id=srvid)
+
+        if srv.count() == 0:
+            if srvid != 'generic':
+                return Response({'error':'Requested Service not found'}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                srvid = 'alerts'
+
+        #Delete old rule from DB
+        rules_db = monitoring_rules.objects.all().filter(service__sonata_srv_id=srvid)
+        rules_db.delete()
+
+        #Create prometheus configuration file 
+        rls = {}
+        rls['service'] = srvid
+        rls['vnf'] = "To be found..."
+        rls['rules'] = []  
+        rules_status=len(rules)
+        for r in rules:
+            #print json.dumps(r)
+            nt = monitoring_notif_types.objects.all().filter(id=r['notification_type'])
+            if nt.count() == 0:
+                return Response({'error':'Alert notification type does not supported. Action Aborted'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if srvid != "alerts":
+                    rule = monitoring_rules(service=srv[0], summary=r['summary'] ,notification_type=nt[0], name=r['name'] ,condition=r['condition'] ,duration=r['duration'] ,description=r['description'] )
+                    rule.save()
+                rl = {}
+                rl['name'] = r['name']
+                rl['description'] = r['description']
+                rl['summary'] = r['summary']
+                rl['duration'] = r['duration']
+                rl['notification_type'] = r['notification_type']
+                rl['condition'] = r['condition']
+                rl['labels'] = ["serviceID=\""+rls['service']+"\""]
+            rls['rules'].append(rl)
+
+
+        if len(rules) > 0:
+            cl = Http()
+            rsp = cl.POST('http://localhost:5000/prometheus/rules',[],json.dumps(rls))            
+            if rsp == 200:
+                return Response({'status':"success","rules":rules_status})
+            else:
+                return Response({'error': 'Rule update failed '+str(rsp)})
+        else:
+            return Response({'error': 'No rules defined'})
 
 class SntPromMetricData(generics.CreateAPIView):
     serializer_class = SntPromMetricSerializer
