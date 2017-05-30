@@ -33,7 +33,7 @@ urlpatterns = [
 
 	url(r'^api/v1/pop$', views.SntPOPList.as_view()),
 	url(r'^api/v1/pop/splatform/(?P<spID>[^/]+)/$', views.SntPOPperSPList.as_view()),
-	url(r'^api/v1/pop/(?P<pk>[0-9]+)/$', views.SntPOPDetail.as_view()),
+	url(r'^api/v1/pop/(?P<sonata_pop_id>[^/]+)/$', views.SntPOPDetail.as_view()),
 
 	url(r'^api/v1/splatform$', views.SntSPList.as_view()),
 	url(r'^api/v1/splatform/(?P<pk>[0-9]+)/$', views.SntSPDetail.as_view()),
@@ -49,7 +49,7 @@ urlpatterns = [
 	url(r'^api/v1/prometheus/pop/(?P<popID>[^/]+)/configuration$', views.SntPromSrvPerPOPConf.as_view()),
 
 	url(r'^api/v1/ws/new$', views.SntWSreq.as_view()),
-	url(r'^api/v1/ws/pop/(?P<popID>[^/]+)/new$', views.SntWSreq.as_view()),
+	url(r'^api/v1/ws/pop/(?P<popID>[^/]+)/new$', views.SntWSreqPerPOP.as_view()),
 
 	url(r'^docs/', include('rest_framework_swagger.urls')),
 	
