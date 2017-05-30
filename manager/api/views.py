@@ -187,8 +187,60 @@ class SntPOPperSPList(generics.ListAPIView):
         return queryset.filter(sonata_sp_id=service_platform_id)
 
 class SntPOPDetail(generics.DestroyAPIView):
-    queryset = monitoring_pops.objects.all()
     serializer_class = SntPOPSerializer
+    def getCfgfile(self):
+        url = 'http://localhost:5000/prometheus/configuration'
+        cl = Http()
+        rsp = cl.GET(url,[])
+        return rsp
+
+    def postCfgfile(self,confFile):
+        url = 'http://localhost:5000/prometheus/configuration'
+        cl = Http()
+        rsp = cl.POST(url,[],json.dumps(confFile))            
+        return rsp
+
+
+    def updatePromConf(self, pop_id):
+        arch = os.environ.get('MON_ARCH','CENTRALIZED')
+        if arch == 'CENTRALIZED':
+            return
+        updated = False
+        file=self.getCfgfile()
+        if 'scrape_configs' in file: 
+            for obj in file['scrape_configs']:
+                if 'target_groups' in obj:
+                    for trg in obj['target_groups']:
+                        if 'labels' in trg:
+                            if 'pop_id' in trg['labels']:
+                                if trg['labels']['pop_id'] == pop_id:
+                                    obj['target_groups'].remove(trg)
+                                    updated = True
+        else:
+            return 'NOT FOUND scrape_configs'
+
+        if not is_json(json.dumps(file)):
+            return Response({'status':"Prometheus reconfiguration failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        code = self.postCfgfile(file)
+        return code
+
+    
+    def delete(self, request, *args, **kwargs):
+        #karpa start
+        self.lookup_field = 'sonata_pop_id'
+        pop_id = self.kwargs['sonata_pop_id']
+        queryset = monitoring_pops.objects.all()
+        queryset = queryset.filter(sonata_pop_id=pop_id)
+        print queryset.count()
+
+        if queryset.count() > 0:
+            code = self.updatePromConf(pop_id)
+            if code == 200:
+                queryset.delete()
+                return  Response({'status':"POP removed"}, status=status.HTTP_204_NO_CONTENT)
+        else: 
+            return  Response({'status':"POP not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class SntSPList(generics.ListCreateAPIView):
     queryset = monitoring_service_platforms.objects.all()
