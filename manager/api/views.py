@@ -261,7 +261,7 @@ class SntPromMetricPerPOPList(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         pop_id = self.kwargs['popID']
         prom_url = getPromIP(pop_id)
-         if prom_url['status'] == 'failed':
+        if prom_url['status'] == 'failed':
             return Response({'status': prom_url['msg']}, status=status.HTTP_404_NOT_FOUND)
         mt = ProData(prom_url['addr'],9090)
         data = mt.getMetrics()
