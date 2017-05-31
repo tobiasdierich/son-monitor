@@ -91,7 +91,7 @@ def getPromIP(pop_id_):
              return {'status':'failed', 'msg':'Undefined Prometheus address','addr':None}
             #return Response({'status':"Undefined Prometheus address"}, status=status.HTTP_404_NOT_FOUND)
     else:
-        prom_url = 'localhost'
+        prom_url = 'prometheus'
     return {'status':'success', 'msg':'Prometheus address found','addr':prom_url}
 
 class SntPOPList(generics.ListCreateAPIView):
@@ -101,13 +101,13 @@ class SntPOPList(generics.ListCreateAPIView):
         return queryset
 
     def getCfgfile(self):
-        url = 'http://localhost:9089/prometheus/configuration'
+        url = 'http://prometheus:9089/prometheus/configuration'
         cl = Http()
         rsp = cl.GET(url,[])
         return rsp
 
     def postCfgfile(self,confFile):
-        url = 'http://localhost:9089/prometheus/configuration'
+        url = 'http://prometheus:9089/prometheus/configuration'
         cl = Http()
         rsp = cl.POST(url,[],json.dumps(confFile))            
         return rsp
@@ -116,7 +116,7 @@ class SntPOPList(generics.ListCreateAPIView):
     def updatePromConf(self, pop):
         arch = os.environ.get('MON_ARCH','CENTRALIZED')
         if arch == 'CENTRALIZED':
-            return
+            return 200
         updated = False
         file=self.getCfgfile()
         if 'scrape_configs' in file: 
@@ -195,13 +195,13 @@ class SntPOPperSPList(generics.ListAPIView):
 class SntPOPDetail(generics.DestroyAPIView):
     serializer_class = SntPOPSerializer
     def getCfgfile(self):
-        url = 'http://localhost:9089/prometheus/configuration'
+        url = 'http://prometheus:9089/prometheus/configuration'
         cl = Http()
         rsp = cl.GET(url,[])
         return rsp
 
     def postCfgfile(self,confFile):
-        url = 'http://localhost:9089/prometheus/configuration'
+        url = 'http://prometheus:9089/prometheus/configuration'
         cl = Http()
         rsp = cl.POST(url,[],json.dumps(confFile))            
         return rsp
@@ -210,7 +210,7 @@ class SntPOPDetail(generics.DestroyAPIView):
     def updatePromConf(self, pop_id):
         arch = os.environ.get('MON_ARCH','CENTRALIZED')
         if arch == 'CENTRALIZED':
-            return
+            return 200
         updated = False
         file=self.getCfgfile()
         if 'scrape_configs' in file: 
@@ -319,7 +319,7 @@ class SntPromSrvPerPOPConf(generics.ListAPIView):
         prom_url = getPromIP(pop_id)
         if prom_url['status'] == 'failed':
             return Response({'status': prom_url['msg']}, status=status.HTTP_404_NOT_FOUND)
-        url = 'http://'+prom_url['addr']':9089/prometheus/configuration'
+        url = 'http://'+prom_url['addr']+':9089/prometheus/configuration'
         cl = Http()
         rsp = cl.GET(url,[])
         print rsp
