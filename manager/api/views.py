@@ -72,21 +72,27 @@ def is_json(myjson):
   return True
 
 def getPromIP(pop_id_):
-    arch = os.environ.get('MON_ARCH','CENTRALIZED')
+    arch = os.environ.get('MON_ARCH','CENTRALIZED')        
+    
+    pop_id  = pop_id_
+    pop = monitoring_pops.objects.values('prom_url').filter(sonata_pop_id=pop_id)
+    print pop.count()
+    if pop.count() == 0:
+        return {'status':'failed', 'msg':'Undefined POP','addr':None}
+        #return Response({'status':"Undefined POP"}, status=status.HTTP_404_NOT_FOUND)
+    elif pop.count() >1:
+        return {'status':'failed', 'msg':'Many POPs with same id','addr':None}
+        #return Response({'status':"Many POPs with same id"}, status=status.HTTP_404_NOT_FOUND)
+    
     if arch != 'CENTRALIZED':
-        pop_id  = pop_id_
-        pop = monitoring_pops.objects.values('prom_url').filter(sonata_pop_id=pop_id)
-        if pop.count() == 0:
-            return Response({'status':"Undefined POP"}, status=status.HTTP_404_NOT_FOUND)
-        elif pop.count() >1:
-            return Response({'status':"Many POPs with same id"}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            prom_url = monitoring_pops.objects.values('prom_url').filter(sonata_pop_id=pop_id)[0]['prom_url']
-            if prom_url == 'undefined':
-                return Response({'status':"Undefined Prometheus address"}, status=status.HTTP_404_NOT_FOUND)
+        prom_url = monitoring_pops.objects.values('prom_url').filter(sonata_pop_id=pop_id)[0]['prom_url']
+        print prom_url
+        if prom_url == 'undefined':
+             return {'status':'failed', 'msg':'Undefined Prometheus address','addr':None}
+            #return Response({'status':"Undefined Prometheus address"}, status=status.HTTP_404_NOT_FOUND)
     else:
-        prom_url = 'prometheus'
-    return prom_url
+        prom_url = 'localhost'
+    return {'status':'success', 'msg':'Prometheus address found','addr':prom_url}
 
 class SntPOPList(generics.ListCreateAPIView):
     serializer_class = SntPOPSerializer
@@ -255,7 +261,9 @@ class SntPromMetricPerPOPList(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         pop_id = self.kwargs['popID']
         prom_url = getPromIP(pop_id)
-        mt = ProData(prom_url,9090)
+         if prom_url['status'] == 'failed':
+            return Response({'status': prom_url['msg']}, status=status.HTTP_404_NOT_FOUND)
+        mt = ProData(prom_url['addr'],9090)
         data = mt.getMetrics()
         response = {}
         response['metrics'] = data['data']
@@ -268,7 +276,9 @@ class SntPromMetricPerPOPDetail(generics.ListAPIView):
         metric_name  = self.kwargs['metricName']
         pop_id = self.kwargs['popID']
         prom_url = getPromIP(pop_id)
-        mt = ProData(prom_url,9090)
+        if prom_url['status'] == 'failed':
+            return Response({'status': prom_url['msg']}, status=status.HTTP_404_NOT_FOUND)
+        mt = ProData(prom_url['addr'],9090)
         data = mt.getMetricDetail(metric_name)
         response = {}
         response['metrics'] = data['data']
@@ -289,7 +299,9 @@ class SntPromMetricPerPOPData(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         pop_id = self.kwargs['popID']
         prom_url = getPromIP(pop_id)
-        mt = ProData(prom_url,9090)
+        if prom_url['status'] == 'failed':
+            return Response({'status': prom_url['msg']}, status=status.HTTP_404_NOT_FOUND)
+        mt = ProData(prom_url['addr'],9090)
         data = mt.getTimeRangeData(request.data)
         response = {}
         #print data
@@ -305,7 +317,9 @@ class SntPromSrvPerPOPConf(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         pop_id = self.kwargs['popID']
         prom_url = getPromIP(pop_id)
-        url = 'http://'+prom_url+':9089/prometheus/configuration'
+        if prom_url['status'] == 'failed':
+            return Response({'status': prom_url['msg']}, status=status.HTTP_404_NOT_FOUND)
+        url = 'http://'+prom_url['addr']':9089/prometheus/configuration'
         cl = Http()
         rsp = cl.GET(url,[])
         print rsp
@@ -592,7 +606,10 @@ class SntWSreqPerPOP(generics.CreateAPIView):
         metric = request.data['metric']
         pop_id = self.kwargs['popID']
         prom_url = getPromIP(pop_id)
-        url = "http://"+prom_url+":8888/new/?metric="+metric+"&params="+json.dumps(filters).replace(" ", "")
+        if prom_url['status'] == 'failed':
+            return Response({'status': prom_url['msg']}, status=status.HTTP_404_NOT_FOUND)
+        ip = socket.gethostbyname(prom_url['addr'])
+        url = "http://"+ip+":8002/new/?metric="+metric+"&params="+json.dumps(filters).replace(" ", "")
         #print url
         cl = Http()
         rsp = cl.GET(url,[])
@@ -602,7 +619,7 @@ class SntWSreqPerPOP(generics.CreateAPIView):
             if 'name_space' in rsp:
                 response['status'] = "SUCCESS"
                 response['metric'] = request.data['metric']
-                response['ws_url'] = "ws://"+prom_url+":8888/ws/"+str(rsp['name_space'])
+                response['ws_url'] = "ws://"+ip+":8002/ws/"+str(rsp['name_space'])
             else:
                 response['status'] = "FAIL"
                 response['ws_url'] = None
