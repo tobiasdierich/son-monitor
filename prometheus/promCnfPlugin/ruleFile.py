@@ -26,13 +26,14 @@ acknowledge the contributions of their colleagues of the SONATA
 partner consortium (www.sonata-nfv.eu).
 '''
 
-import json, yaml, httplib, subprocess, time
+import json, yaml, httplib, subprocess, time, os
+from shutil import copyfile
 
 class fileBuilder(object):
 
-    def __init__(self, serviceID, rules, path):
-        self.serviceID = serviceID
-        self.rules = rules
+    def __init__(self, file_name, cnfg, path):
+        self.file_name = file_name
+        self.configuration = cnfg
         self.prometheusPth = path
 
     def relaodConf(self):
@@ -58,9 +59,9 @@ class fileBuilder(object):
 
     def writeFile(self):
         body = ''
-        for r in self.rules:
+        for r in self.configuration:
             body += self.buildRule(r)
-        filename = "".join((self.prometheusPth,'rules/',self.serviceID, '.rules'))
+        filename = "".join((self.prometheusPth,'rules/',self.file_name, '.rules'))
 
         with open(filename, 'w') as outfile:
             outfile.write(body)
@@ -98,12 +99,47 @@ class fileBuilder(object):
         else:
             return rc
 
+    def buildConf(self):
+        resp={}
+        with open(self.file_name+'.tmp', 'w') as yaml_file:
+            yaml.safe_dump(self.configuration, yaml_file, default_flow_style=False)
+        rs = self.validateConfig(self.file_name+'.tmp')
+        resp['report']=rs['message']
+        resp['status'] = 'FAILED'
+        resp['prom_reboot'] = None
+        if rs['status'] == 'SUCCESS':
+            if os.path.exists(self.file_name):
+                copyfile(self.file_name, self.file_name+'.backup')
+            if os.path.exists(self.file_name+'.tmp'):
+                copyfile(self.file_name+'.tmp', self.file_name)
+                resp['prom_reboot'] = self.reloadServer()
+                if resp['prom_reboot'] == 'SUCCESS':
+                    resp['status'] = 'SUCCESS'
+        return resp
+
+    def validateConfig(self,file):
+        p = subprocess.Popen(['./promtool', 'check-config', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, status = p.communicate()
+        rc = p.returncode
+        msg={}
+        msg['code'] = rc
+        msg['message'] =  status
+        if not 'FAILED' in status:              
+            msg['status'] = 'SUCCESS'
+        else:
+            msg['status'] = 'FAILED'
+        return msg
+
 
     def reloadServer(self):
         httpServ = httplib.HTTPConnection("localhost", 9090)
-        httpServ.connect()
-        httpServ.request("POST", "/-/reload")
-        response = httpServ.getresponse()
-        #print response.status
-        httpServ.close()
+        try:
+            httpServ.connect()
+            httpServ.request("POST", "/-/reload")
+            response = httpServ.getresponse()
+            print response.status
+            httpServ.close()
+            return 'SUCCESS'
+        except:
+            return 'FAILED'
 

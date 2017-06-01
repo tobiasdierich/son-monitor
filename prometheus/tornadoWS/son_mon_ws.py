@@ -22,9 +22,20 @@ class NameSpaceHandler(object):
         cid = uuid.uuid4().hex  # generate a client id.
         if not metric in self.nm_space_info:  
             self.nm_space_info[metric] = []
+        prms = params.replace('[','').replace(']','').replace('\"','').replace('\'','').replace(' ','')
+        ptls= prms.split(',')
         
-        self.client_info[cid] = {'metric_name': metric, 'filters': params}  
-        self.nm_space_info[metric].append({'cid': cid, 'filters': params})
+        fls=[]
+        for lb in ptls:
+            l = None
+            if '=' in lb:
+                l={"tag":lb.split('=')[0], "val":lb.split('=')[1]}
+            elif  ':' in lb:
+                l={"tag":lb.split(':')[0], "val":lb.split(':')[1]}
+            if not l == None:
+                fls.append(l)
+        self.client_info[cid] = {'metric_name': metric, 'filters': fls}  
+        self.nm_space_info[metric].append({'cid': cid, 'filters': fls})
         return cid
     
     def add_nmspace_wsconn(self, client_id, conn):

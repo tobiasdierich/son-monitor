@@ -36,6 +36,17 @@ from django.core import serializers as core_serializers
 
 #######################################################################################################
 
+class SntSPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = monitoring_service_platforms
+        fields = ('id', 'sonata_sp_id', 'name', 'manager_url','created')
+
+class SntPOPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = monitoring_pops
+        fields = ('id', 'sonata_pop_id','sonata_sp_id' ,'name', 'prom_url','created')
+        lookup_field = 'sonata_pop_id'
+
 class SntUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = monitoring_users
@@ -62,6 +73,12 @@ class SntFunctionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = monitoring_functions
         fields = ('id', 'sonata_func_id', 'name', 'description', 'created', 'service', 'host_id','pop_id')
+
+class SntServicesDelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = monitoring_services
+        fields = ('id', 'sonata_srv_id', 'name', 'description', 'created', 'user', 'host_id','pop_id')
+        lookup_field = 'sonata_srv_id'
 
 class SntFunctionsFullSerializer(serializers.ModelSerializer):
     #service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
@@ -103,13 +120,27 @@ class SntNotifTypeSerializer(serializers.ModelSerializer):
         model = monitoring_notif_types
         fields = ('id', 'type',)
 
+class SntServicesLightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = monitoring_services
+        fields = ('sonata_srv_id', 'name')
+        lookup_field = 'sonata_srv_id'
+
 class SntRulesSerializer(serializers.ModelSerializer):
-    service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
-    #function = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_functions.objects.all())
-    notification_type = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_notif_types.objects.all())
+    #service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all()) 
+    #notification_type = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_notif_types.objects.all())
+    service = SntServicesLightSerializer()
+    notification_type = SntNotifTypeSerializer()
     class Meta:
         model = monitoring_rules
         fields = ('id', 'name', 'duration', 'summary', 'description', 'condition', 'notification_type','service', 'created',)
+
+
+class SntRulesPerSrvSerializer(serializers.ModelSerializer):
+    notification_type = SntNotifTypeSerializer()
+    class Meta:
+        model = monitoring_rules
+        fields = ('id', 'name', 'duration', 'summary', 'description', 'condition', 'notification_type', 'created',)
 
 class SntNewFunctionsSerializer(serializers.ModelSerializer):
     #service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
@@ -170,7 +201,8 @@ class SntPOPSerializer(serializers.ModelSerializer):
         model = monitoring_pops
         fields = ('id', 'sonata_pop_id','sonata_sp_id' ,'name', 'prom_url','created')
 
-
+class SntRulesConfSerializer(serializers.Serializer):
+    rules = SntRulesPerSrvSerializer(many=True)
 ######################################################################################
 '''
 class TestTBSerializer(serializers.Serializer):

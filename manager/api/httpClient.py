@@ -60,3 +60,16 @@ class Http(object):
             return e.code
         except urllib2.URLError, e:
             return e
+
+    def DELETE(self, url_,headers_):  #karpa
+        try: 
+            req = urllib2.Request(url_)
+            req.add_header('Content-Type','text/html')
+            req.get_method = lambda: 'DELETE'
+            response=urllib2.urlopen(req)
+            code = response.code  
+            return code
+        except urllib2.HTTPError, e:
+            return e.code
+        except urllib2.URLError, e:
+            return e
