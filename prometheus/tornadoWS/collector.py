@@ -56,6 +56,7 @@ class PushGW(Thread):
         dt=[]
         if len(filters_) == 0:
             dt = data_
+            return dt
         for rec in data_:
             labels= rec['labels']  
             found = 0
