@@ -46,10 +46,29 @@ class PushGW(Thread):
                 for con in conns:
                     #print (con)
                     resp = {metric:[]}
-                    resp[metric]= self.data[metric]
+                    dt = self.filter(con['filters'],self.data[metric])
+                    resp[metric]= dt
+                    #resp[metric]= self.data[metric]
                     if 'wsconn' in con.keys():
                         con['wsconn'].send_values(json.dumps(resp))
-                    
+    
+    def filter(self, filters_, data_):
+        dt=[]
+        if len(filters_) == 0:
+            dt = data_
+        for rec in data_:
+            labels= rec['labels']  
+            found = 0
+            for fl in filters_:
+                for l in labels:
+                    if fl['val'] in l:
+                     found=found +1
+                     continue
+            if found == len(filters_):
+                dt.append(rec)
+        print (dt)
+        return dt
+
     def conver2obj(self, data_):
         if not data_:
             return;
