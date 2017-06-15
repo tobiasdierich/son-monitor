@@ -1,3 +1,11 @@
+ALERT VNF_DOWN
+  IF (time()-vm_up)>50 and (time()-vm_up)<150
+  LABELS {exported_job = "vnf"}
+  ANNOTATIONS {
+    summary = "VNF DOWN ",
+    description = "VNF stopped sending data {{$labels.exported_instance}}  {{$labels.id}} (current value {{$value}})"
+  }
+
 ALERT VTC_ALL_PACKET
   IF mbits_packets_all{exported_job = "vtc_db"} > 1500
   FOR 5s
