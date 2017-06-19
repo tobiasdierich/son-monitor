@@ -62,9 +62,11 @@ class PushGW(Thread):
             found = 0
             for fl in filters_:
                 for l in labels:
-                    if fl['val'] in l:
-                     found=found +1
-                     continue
+                    if fl['tag'] == "type":
+                        fl['tag'] = "job"
+                    if l.startswith( fl['tag'] ):
+                        if fl['val'] in l:
+                            found=found +1
             if found == len(filters_):
                 dt.append(rec)
         print (dt)
