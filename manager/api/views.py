@@ -372,9 +372,10 @@ class SntServicesDetail(generics.DestroyAPIView):
             cl = Http()
             rsp = cl.DELETE('http://prometheus:9089/prometheus/rules/'+str(srvid),[])            
             print rsp
-
+            print 'Service ' +srvid +' removed'
             return  Response({'staus':"service removed"}, status=status.HTTP_204_NO_CONTENT)
-        else: 
+        else:
+            print 'Service ' +srvid +' not found' 
             return  Response({'status':"service not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class SntFunctionsList(generics.ListAPIView):
@@ -423,11 +424,16 @@ class SntNewServiceConf(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
 
         if not 'service' in request.data:
+            print 'Received new Service notigication: Undefined Service'
             return Response({'error':'Undefined Service'}, status=status.HTTP_400_BAD_REQUEST)
         if not 'functions' in request.data:
+            print 'Received new Service notigication: Undefined Functions'
             return Response({'error':'Undefined Functions'}, status=status.HTTP_400_BAD_REQUEST)
         if not 'rules' in request.data:
+            print 'Received new Service notigication: Undefined Rules'
             return Response({'error':'Undefined Rules'}, status=status.HTTP_400_BAD_REQUEST)
+
+        print 'Received new Service notigication: '+ json.dumps(request.data)
 
         service = request.data['service']
         functions = request.data['functions']
