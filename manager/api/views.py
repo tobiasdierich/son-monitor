@@ -363,7 +363,7 @@ class SntServicesDetail(generics.DestroyAPIView):
         queryset = monitoring_services.objects.all()
         srvid  = self.kwargs['sonata_srv_id']
         
-        queryset.filter(sonata_srv_id=srvid)
+        queryset = queryset.filter(sonata_srv_id=srvid)
         print queryset.count()
 
         if queryset.count() > 0:
