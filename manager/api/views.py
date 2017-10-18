@@ -64,6 +64,51 @@ def api_root(request, format=None):
     })
 ########################################################################################
 
+class SntSmtpCreate(generics.CreateAPIView):
+#    queryset = monitoring_smtp.objects.all()
+    serializer_class = SntSmtpSerializerCreate
+    def post(self, request, *args, **kwargs):
+        queryset = monitoring_smtp.objects.filter(component=request.data['component'])
+
+        if queryset.count() > 0:
+            queryset.update(smtp_server=request.data['smtp_server'],port=request.data['port'], user_name=request.data['user_name'], password=request.data['password'])
+            return Response(monitoring_smtp.objects.values().filter(component=request.data['component']))
+        else:
+            smtp = monitoring_smtp(smtp_server=request.data['smtp_server'],port=request.data['port'], user_name=request.data['user_name'], password=request.data['password'],component=request.data['component'])
+            smtp.save()
+            return Response(monitoring_smtp.objects.values().filter(component=request.data['component']))
+
+
+class SntSmtpList(generics.ListAPIView):
+    
+    serializer_class = SntSmtpSerializerList
+
+    def get_queryset(self):
+        queryset = monitoring_smtp.objects.all()
+        return queryset
+
+class SntSmtpDetail(generics.DestroyAPIView):
+    queryset = monitoring_smtp.objects.all()
+    serializer_class = SntSmtpSerializerList
+
+class SntCredList(generics.ListAPIView):
+    
+    #serializer_class = SntSmtpSerializerList
+    serializer_class = SntSmtpSerializerCred
+
+    def get(self, request, *args, **kwargs):
+        smtp = monitoring_smtp.objects.filter(component=self.kwargs['component'])
+        if smtp.count() > 0:
+            print '1'
+            dict = [ obj.as_dict() for obj in smtp]
+            psw = (dict[0])['psw']
+            psw = base64.b64encode(psw)
+            return Response({'status':'key found', 'creds':psw}, status=status.HTTP_200_OK)
+        else:
+            print '2'
+            return Response({'status':'key not found'}, status=status.HTTP_200_OK)
+
+
 def is_json(myjson):
   try:
     json_object = json.loads(myjson)

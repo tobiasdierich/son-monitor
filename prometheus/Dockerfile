@@ -1,8 +1,14 @@
 FROM ubuntu:14.04
 
 RUN apt-get update && apt-get -y upgrade && \
-apt-get install -y apache2 libapache2-mod-wsgi python-dev python-pip python-yaml supervisor nano  && \
-pip install Flask pika influxdb tornado
+echo postfix postfix/mailname string 'monitoring.com' | debconf-set-selections && \
+echo postfix postfix/main_mailer_type string 'Internet Site' | debconf-set-selections && \
+apt-get install -y apache2 libapache2-mod-wsgi python-dev python-pip python-yaml supervisor nano mailutils && \
+pip install Flask pika influxdb tornado && rm -rf /var/cache/apt /var/lib/apt/lists
+
+RUN /usr/sbin/postconf -e inet_interfaces=loopback-only && \
+    /usr/sbin/postconf -e inet_protocols=ipv4 && \
+    /usr/sbin/postconf -e myhostname=localhost
 
 
 RUN mkdir -p /opt/Monitoring/prometheus && \
@@ -28,7 +34,7 @@ chmod 0755 /opt/Monitoring/prometheus/tornadoWS/startWS.sh && \
 chown -R www-data:www-data /opt/Monitoring/prometheus && \
 chmod -R g+w /opt/Monitoring/prometheus 
 
-RUN ls -la /opt/Monitoring/*
+RUN ls -la /opt/Monitoring/* 
 
 EXPOSE 9090 9089 8002
 

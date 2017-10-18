@@ -42,6 +42,44 @@ LEXERS = [item for item in get_all_lexers() if item[1]]
 LANGUAGE_CHOICES = sorted([(item[1][0], item[0]) for item in LEXERS])
 STYLE_CHOICES = sorted((item, item) for item in get_all_styles())
 
+class monitoring_smtp(models.Model):
+    SEC_TYPES = (
+        ('SSL', 'SSL'),
+        ('TLS', 'TLS'),
+        ('SSL ALL', 'SSL ALL CERTS'),
+        ('TLS ALL', 'TLS ALL CERTS'),
+        )
+    COMPS = (('Alert Manager','Alert Manager'),)
+    smtp_server = models.CharField(max_length=30, blank=True)
+    port = models.CharField(max_length=30, blank=True)
+    user_name = models.EmailField(blank=True)
+    password = models.CharField(max_length=60)
+    component = models.CharField(max_length=60, choices=COMPS)
+    sec_type = models.CharField(max_length=7, choices=SEC_TYPES)
+    created = models.DateTimeField(default=timezone.now)
+
+    def as_dict(self):
+        return {
+            'id': self.id,
+            'smtp_server': self.smtp_server,
+            'port': self.port,
+            'user_name':self.user_name,
+            'component':self.component,
+            'sec_type':self.sec_type,
+            'psw':self.password,
+            'created':self.created
+            # other stuff
+        }  
+
+    class Meta:
+        db_table = "monitoring_smtp"
+        ordering = ('created',)
+        managed = True
+
+    def __unicode__(self):
+        return u'%s %s %s %s %s' % (self.smtp_server, self.port, self.user_name, self.component, self.sec_type)
+
+
 class monitoring_service_platforms(models.Model):
     name = models.CharField(max_length=30, blank=True)
     manager_url = models.CharField(max_length=128, blank=True)
