@@ -46,16 +46,16 @@ class monitoring_smtp(models.Model):
     SEC_TYPES = (
         ('SSL', 'SSL'),
         ('TLS', 'TLS'),
-        ('SSL ALL', 'SSL ALL CERTS'),
-        ('TLS ALL', 'TLS ALL CERTS'),
+        ('SSL_ALL', 'SSL_ALL_CERTS'),
+        ('TLS_ALL', 'TLS_ALL_CERTS'),
         )
-    COMPS = (('Alert Manager','Alert Manager'),)
+    COMPS = (('Alert_Manager','Alert_Manager'),)
     smtp_server = models.CharField(max_length=30, blank=True)
     port = models.CharField(max_length=30, blank=True)
     user_name = models.EmailField(blank=True)
     password = models.CharField(max_length=60)
     component = models.CharField(max_length=60, choices=COMPS)
-    sec_type = models.CharField(max_length=7, choices=SEC_TYPES)
+    sec_type = models.CharField(max_length=20, choices=SEC_TYPES)
     created = models.DateTimeField(default=timezone.now)
 
     def as_dict(self):
