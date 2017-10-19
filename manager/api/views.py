@@ -71,13 +71,12 @@ class SntSmtpCreate(generics.CreateAPIView):
         queryset = monitoring_smtp.objects.filter(component=request.data['component'])
 
         if queryset.count() > 0:
-            queryset.update(smtp_server=request.data['smtp_server'],port=request.data['port'], user_name=request.data['user_name'], password=request.data['password'])
+            queryset.update(smtp_server=request.data['smtp_server'],port=request.data['port'], user_name=request.data['user_name'], password=request.data['password'],sec_type=request.data['sec_type'])
             return Response(monitoring_smtp.objects.values().filter(component=request.data['component']))
         else:
-            smtp = monitoring_smtp(smtp_server=request.data['smtp_server'],port=request.data['port'], user_name=request.data['user_name'], password=request.data['password'],component=request.data['component'])
+            smtp = monitoring_smtp(smtp_server=request.data['smtp_server'],port=request.data['port'], user_name=request.data['user_name'], password=request.data['password'],component=request.data['component'],sec_type=request.data['sec_type'])
             smtp.save()
             return Response(monitoring_smtp.objects.values().filter(component=request.data['component']))
-
 
 class SntSmtpList(generics.ListAPIView):
     
