@@ -46,9 +46,10 @@ from api.permissions import IsOwnerOrReadOnly
 from rest_framework.reverse import reverse
 from itertools import *
 from django.forms.models import model_to_dict
-import json, socket, os
+import json, socket, os, base64
 from drf_multiple_model.views import MultipleModelAPIView
 from httpClient import Http
+
 
 
 # Create your views here.
