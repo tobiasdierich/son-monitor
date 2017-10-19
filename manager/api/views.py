@@ -84,8 +84,10 @@ class SntSmtpList(generics.ListAPIView):
     serializer_class = SntSmtpSerializerList
 
     def get_queryset(self):
-        queryset = monitoring_smtp.objects.all()
+        comp  = self.kwargs['component']
+        queryset = monitoring_smtp.objects.filter(component=comp)
         return queryset
+
 
 class SntSmtpDetail(generics.DestroyAPIView):
     queryset = monitoring_smtp.objects.all()
