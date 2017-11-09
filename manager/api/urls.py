@@ -3,11 +3,9 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from api import views
 
 # API endpoints
-
-
-
-urlpatterns = [
-	url(r'^api/v1/users$', views.SntUsersList.as_view()),
+urlpatterns2 = [
+    
+    url(r'^api/v1/users$', views.SntUsersList.as_view()),
 	url(r'^api/v1/users/(?P<pk>[0-9]+)/$', views.SntUsersDetail.as_view()),
 
 	url(r'^api/v1/services$', views.SntServicesList.as_view()),
@@ -31,10 +29,13 @@ urlpatterns = [
 
 	url(r'^api/v1/notification/types$', views.SntNotifTypesList.as_view()),
 	url(r'^api/v1/notification/type/(?P<pk>[0-9]+)/$', views.SntNotifTypesDetail.as_view()),
+	url(r'^api/v1/notification/smtp/component/(?P<component>[^/]+)/$', views.SntSmtpList.as_view()),
+	url(r'^api/v1/notification/smtp$', views.SntSmtpCreate.as_view()),
+	url(r'^api/v1/notification/smtp/(?P<pk>[0-9]+)/$', views.SntSmtpDetail.as_view()),
 
 	url(r'^api/v1/pop$', views.SntPOPList.as_view()),
 	url(r'^api/v1/pop/splatform/(?P<spID>[^/]+)/$', views.SntPOPperSPList.as_view()),
-	url(r'^api/v1/pop/(?P<sonata_pop_id>[^/]+)/$', views.SntPOPDetail.as_view()),
+	url(r'^api/v1/pop/(?P<sonata_pop_id>[^/]+)/$', views.SntPOPDetail.as_view()),			#karpa
 
 	url(r'^api/v1/splatform$', views.SntSPList.as_view()),
 	url(r'^api/v1/splatform/(?P<pk>[0-9]+)/$', views.SntSPDetail.as_view()),
@@ -50,19 +51,17 @@ urlpatterns = [
 	url(r'^api/v1/prometheus/pop/(?P<popID>[^/]+)/configuration$', views.SntPromSrvPerPOPConf.as_view()),
 
 	url(r'^api/v1/ws/new$', views.SntWSreq.as_view()),
-	url(r'^api/v1/ws/pop/(?P<popID>[^/]+)/new$', views.SntWSreqPerPOP.as_view()),
-
-	url(r'^docs/', include('rest_framework_swagger.urls')),
-	
+	url(r'^api/v1/ws/pop/(?P<popID>[^/]+)/new$', views.SntWSreqPerPOP.as_view()),	#karpa
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+public_apis = format_suffix_patterns(urlpatterns2)
 
-
-
+urlpatterns1 = [
 	
-    #url(r'^api/test/$', views.TestList.as_view()),
-    #url(r'^api/test/(?P<pk>[0-9]+)/$', views.TestDetail.as_view()),
-    #url(r'^users/$', views.UserList.as_view()),
-	#url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
+	url(r'^api/v1/internal/smtp/creds/(?P<component>[^/]+)$', views.SntCredList.as_view()),
+]
+
+internal_apis = format_suffix_patterns(urlpatterns1)
+
+
 	

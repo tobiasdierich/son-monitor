@@ -36,6 +36,21 @@ from django.core import serializers as core_serializers
 
 #######################################################################################################
 
+class SntSmtpSerializerCreate(serializers.ModelSerializer):
+    class Meta:
+        model = monitoring_smtp
+        fields = ('id', 'smtp_server', 'port', 'user_name', 'password', 'component', 'sec_type') 
+
+class SntSmtpSerializerList(serializers.ModelSerializer):
+    class Meta:
+        model = monitoring_smtp
+        fields = ('id', 'smtp_server', 'port', 'user_name', 'component', 'sec_type', 'created') 
+
+class SntSmtpSerializerCred(serializers.ModelSerializer):
+    class Meta:
+        model = monitoring_smtp
+        fields = ('id', 'password') 
+
 class SntSPSerializer(serializers.ModelSerializer):
     class Meta:
         model = monitoring_service_platforms

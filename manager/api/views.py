@@ -46,9 +46,10 @@ from api.permissions import IsOwnerOrReadOnly
 from rest_framework.reverse import reverse
 from itertools import *
 from django.forms.models import model_to_dict
-import json, socket, os
+import json, socket, os, base64
 from drf_multiple_model.views import MultipleModelAPIView
 from httpClient import Http
+
 
 
 # Create your views here.
@@ -63,6 +64,52 @@ def api_root(request, format=None):
         'tests': reverse('UserList', request=request, format=format),
     })
 ########################################################################################
+
+class SntSmtpCreate(generics.CreateAPIView):
+#    queryset = monitoring_smtp.objects.all()
+    serializer_class = SntSmtpSerializerCreate
+    def post(self, request, *args, **kwargs):
+        queryset = monitoring_smtp.objects.filter(component=request.data['component'])
+
+        if queryset.count() > 0:
+            queryset.update(smtp_server=request.data['smtp_server'],port=request.data['port'], user_name=request.data['user_name'], password=request.data['password'],sec_type=request.data['sec_type'])
+            return Response(monitoring_smtp.objects.values().filter(component=request.data['component']))
+        else:
+            smtp = monitoring_smtp(smtp_server=request.data['smtp_server'],port=request.data['port'], user_name=request.data['user_name'], password=request.data['password'],component=request.data['component'],sec_type=request.data['sec_type'])
+            smtp.save()
+            return Response(monitoring_smtp.objects.values().filter(component=request.data['component']))
+
+class SntSmtpList(generics.ListAPIView):
+    
+    serializer_class = SntSmtpSerializerList
+
+    def get_queryset(self):
+        comp  = self.kwargs['component']
+        queryset = monitoring_smtp.objects.filter(component=comp)
+        return queryset
+
+
+class SntSmtpDetail(generics.DestroyAPIView):
+    queryset = monitoring_smtp.objects.all()
+    serializer_class = SntSmtpSerializerList
+
+class SntCredList(generics.ListAPIView):
+    
+    #serializer_class = SntSmtpSerializerList
+    serializer_class = SntSmtpSerializerCred
+
+    def get(self, request, *args, **kwargs):
+        smtp = monitoring_smtp.objects.filter(component=self.kwargs['component'])
+        if smtp.count() > 0:
+            print '1'
+            dict = [ obj.as_dict() for obj in smtp]
+            psw = (dict[0])['psw']
+            psw = base64.b64encode(psw)
+            return Response({'status':'key found', 'creds':psw}, status=status.HTTP_200_OK)
+        else:
+            print '2'
+            return Response({'status':'key not found'}, status=status.HTTP_200_OK)
+
 
 def is_json(myjson):
   try:
@@ -441,12 +488,13 @@ class SntNewServiceConf(generics.CreateAPIView):
         functions_status='NULL'
         metrics_status= 'NULL'
         rules_status='NULL'
-        
-        if not service['sonata_usr_id']:
-            u = monitoring_users.objects.all().filter(sonata_userid='system')  
+
+        if 'sonata_usr_id' in service:
+            if service['sonata_usr_id']:
+                u = monitoring_users.objects.all().filter(sonata_userid=service['sonata_usr_id'])             
         else:
-            u = monitoring_users.objects.all().filter(sonata_userid=service['sonata_usr_id'])             
-        
+            u = monitoring_users.objects.all().filter(sonata_userid='system') 
+             
         if u.count() == 0:
             #add new user
             usr = monitoring_users(sonata_userid=service['sonata_usr_id'])

@@ -34,10 +34,26 @@ from email.mime.text import MIMEText
 class emailNotifier():
 
     def __init__(self):
-        self.user = 'monitoring@synelixis.com'
-        self.psw = self.getEmailPass()
         self.mon_manager = 'http://manager:8000'
         self.msgs = []
+        self.smtp={'server':'localhost','port':None,'user':None,'psw':None, 'sec_type': None, 'postfix':True}
+        self.setSmtpSrv()
+
+    def setSmtpSrv(self):
+        compName = 'Alert_Manager'
+        srv = self.getSmtp(self.mon_manager+'/api/v1/notification/smtp/component/'+compName+'/')
+        if 'results' in srv:
+            if len(srv['results']) > 0:
+                cds = self.getSmtp(self.mon_manager+'/api/v1/internal/smtp/creds/'+compName)
+                if 'status' in cds:
+                    if cds['status'] == 'key found':
+                        self.smtp['psw'] = base64.b64decode(cds['creds'])
+                        self.smtp['server'] =  srv['results'][0]['smtp_server']
+                        self.smtp['port'] =  srv['results'][0]['port']
+                        self.smtp['user'] =  srv['results'][0]['user_name']
+                        self.smtp['sec_type'] =  srv['results'][0]['sec_type']
+                        self.smtp['postfix'] = False
+        print self.smtp
 
     def getEmailPass(selfn):
         if os.environ.has_key('EMAIL_PASS'):
@@ -68,7 +84,7 @@ class emailNotifier():
                     else:
                         if usr['email'] == 'system@system.com':
                             usr['email']='pkarkazis@synelixis.com'
-                        receivers = [usr['email'],'trakadasp@yahoo.gr','jbonnet@alticelabs.com']
+                        receivers = [usr['email']]
                         msg['To'] = email.utils.formataddr(('Recipient', usr['email']))
                 else:
                     continue   
@@ -80,6 +96,24 @@ class emailNotifier():
             print(myemail['receivers'])
         self.sendMail()
             
+    def getSmtp(self, url):
+        try:
+            print url
+            req = urllib2.Request(url)
+            req.add_header('Content-Type','application/json')
+        
+            response=urllib2.urlopen(req, timeout = 3)
+            code = response.code
+            data = json.loads(response.read())
+            return data
+    
+        except urllib2.HTTPError, e:
+            return {'error':str(e)}
+        except urllib2.URLError, e:
+            return {'error':str(e)}
+        except ValueError, e:
+            return {'error':str(e)}
+
     def getEmail(self, userid):
         try:
             url = self.mon_manager+'/api/v1/user/'+userid
@@ -101,22 +135,34 @@ class emailNotifier():
             
             
     def sendMail(self):
-        if self.psw == '':
-            return
-        
-        try:
-            server = smtplib.SMTP('mail.synelixis.com',26)
-            #server.set_debuglevel(1)
-            server.ehlo()
-            #server.starttls()
-            #server.ehlo()
-            server.login(self.user, self.psw)
+        if self.smtp['postfix']:
             for msg in self.msgs:
-                server.sendmail('monitoring@synelixis.com', msg['receivers'], msg['obj'].as_string())   
-                print "Successfully sent email"
-            server.quit()
-        except Exception , exc:
-            print "mail failed; %s" % str(exc)
+                try: 
+                    smtp = smtplib.SMTP('localhost')
+                    resp=smtp.sendmail('monitoring@sonata-nfv.eu', msg['receivers'], msg['obj'].as_string() )
+                    print 'Successfully sent email via postfix'
+                    smtp.close()
+                except Exception , exc:
+                    print "mail failed; %s" % str(exc)               
+        else:
+            
+            try:
+                if self.smtp['sec_type'].startswith('SSL'):
+                    server = smtplib.SMTP_SSL(self.smtp['server'],int(self.smtp['port']))
+                else:
+                    server = smtplib.SMTP(self.smtp['server'],int(self.smtp['port']))
+                #server.set_debuglevel(1)
+                server.ehlo()
+                if self.smtp['sec_type'].startswith('TLS'):
+                    server.starttls()
+                    server.ehlo()
+                server.login(self.smtp['user'], self.smtp['psw'])
+                for msg in self.msgs:
+                    server.sendmail('monitoring@sonata-nfv.eu', msg['receivers'], msg['obj'].as_string())   
+                    print "Successfully sent email"
+                server.quit()
+            except Exception , exc:
+                print "mail failed; %s" % str(exc)
             
     def alarmStatus(self, obj):
         msg={}

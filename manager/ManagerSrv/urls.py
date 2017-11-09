@@ -31,15 +31,16 @@ from django.contrib import admin
 from django.conf.urls import include
 from rest_framework import routers
 from usersMng import views
+from api.urls import internal_apis
+from api.urls import public_apis
 
-router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'groups', views.GroupViewSet)
+#router = routers.DefaultRouter()
+#router.register(r'users', views.UserViewSet)
+#router.register(r'groups', views.GroupViewSet)
 
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    #url(r'^', include(router.urls)),
-    url(r'^', include('api.urls')),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^docs/', include('rest_framework_swagger.urls')),
+    url(r'^', include(public_apis, namespace='public_apis')),
+    url(r'^', include(internal_apis, namespace='internal_apis')),
 ]
