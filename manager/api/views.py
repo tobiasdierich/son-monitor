@@ -488,12 +488,13 @@ class SntNewServiceConf(generics.CreateAPIView):
         functions_status='NULL'
         metrics_status= 'NULL'
         rules_status='NULL'
-        
-        if not service['sonata_usr_id']:
-            u = monitoring_users.objects.all().filter(sonata_userid='system')  
+
+        if 'sonata_usr_id' in service:
+            if service['sonata_usr_id']:
+                u = monitoring_users.objects.all().filter(sonata_userid=service['sonata_usr_id'])             
         else:
-            u = monitoring_users.objects.all().filter(sonata_userid=service['sonata_usr_id'])             
-        
+            u = monitoring_users.objects.all().filter(sonata_userid='system') 
+             
         if u.count() == 0:
             #add new user
             usr = monitoring_users(sonata_userid=service['sonata_usr_id'])
