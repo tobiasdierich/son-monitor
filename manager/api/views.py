@@ -476,6 +476,9 @@ class SntNewServiceConf(generics.CreateAPIView):
         if not 'functions' in request.data:
             print 'Received new Service notigication: Undefined Functions'
             return Response({'error':'Undefined Functions'}, status=status.HTTP_400_BAD_REQUEST)
+        if not 'cloud_services' in request.data:
+            print 'Received new Service notigication: Undefined Cloud Services'
+            return Response({'error':'Undefined Cloud Services'}, status=status.HTTP_400_BAD_REQUEST)
         if not 'rules' in request.data:
             print 'Received new Service notigication: Undefined Rules'
             return Response({'error':'Undefined Rules'}, status=status.HTTP_400_BAD_REQUEST)
@@ -489,9 +492,8 @@ class SntNewServiceConf(generics.CreateAPIView):
         metrics_status= 'NULL'
         rules_status='NULL'
 
-        if 'sonata_usr_id' in service:
-            if service['sonata_usr_id']:
-                u = monitoring_users.objects.all().filter(sonata_userid=service['sonata_usr_id'])             
+        if 'sonata_usr_id' in service and service['sonata_usr_id']:
+            u = monitoring_users.objects.all().filter(sonata_userid=service['sonata_usr_id'])
         else:
             u = monitoring_users.objects.all().filter(sonata_userid='system') 
              
