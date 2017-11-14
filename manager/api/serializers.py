@@ -65,11 +65,12 @@ class SntPOPSerializer(serializers.ModelSerializer):
 class SntUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = monitoring_users
-        fields = ('id', 'first_name', 'last_name', 'email', 'sonata_userid', 'created')
+        fields = ('id', 'first_name', 'last_name', 'email', 'sonata_userid', 'created','type','mobile')
+        lookup_field = {'email','mobile'}
 
 
 class SntServicesSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_users.objects.all())
+    #user = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_users.objects.all())
     #user = SntUserSerializer()
     class Meta:
         model = monitoring_services

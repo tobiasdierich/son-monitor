@@ -49,6 +49,7 @@ from django.forms.models import model_to_dict
 import json, socket, os, base64
 from drf_multiple_model.views import MultipleModelAPIView
 from httpClient import Http
+from django.db.models import Q
 
 
 
@@ -489,6 +490,44 @@ class SntNewServiceConf(generics.CreateAPIView):
         metrics_status= 'NULL'
         rules_status='NULL'
 
+        usr = None
+        if 'sonata_usr' in service:
+            customer={}
+            customer['email'] = None
+            customer['phone'] = None
+
+            if 'email' in service['sonata_usr']:
+                customer['email'] = service['sonata_usr']['email']
+            if 'phone' in service['sonata_usr']:
+                customer['phone'] = service['sonata_usr']['phone']
+
+            u = monitoring_users.objects.all().filter(Q(email=customer['email']) & Q(mobile=customer['phone']) & Q(type='cst'))
+
+            if len(u) == 0:
+                usr=monitoring_users(mobile=customer['phone'],email=customer['email'],type='cst')
+                usr.save()
+            else:
+                usr = u[0]
+
+        dev = None
+        if 'sonata_dev' in service:
+            developer = {}
+            developer['email'] = None
+            developer['phone'] = None
+            if 'email' in service['sonata_dev']:
+                developer['email']= service['sonata_dev']['email']
+            if 'phone' in service['sonata_dev']:
+                developer['phone'] = service['sonata_dev']['phone']
+
+            u = monitoring_users.objects.all().filter(Q(email=developer['email']) & Q(mobile=developer['phone']) & Q(type='dev'))
+
+            if len(u) == 0:
+                dev=monitoring_users(mobile=developer['phone'],email=developer['email'],type='dev')
+                dev.save()
+            else:
+                dev = u[0]
+
+        '''
         if 'sonata_usr_id' in service:
             if service['sonata_usr_id']:
                 u = monitoring_users.objects.all().filter(sonata_userid=service['sonata_usr_id'])             
@@ -501,6 +540,8 @@ class SntNewServiceConf(generics.CreateAPIView):
             usr.save()
         else:
             usr = u[0]
+        '''
+
         s = monitoring_services.objects.all().filter(sonata_srv_id=service['sonata_srv_id'])
         if s.count() > 0:
             s.delete()
@@ -515,8 +556,14 @@ class SntNewServiceConf(generics.CreateAPIView):
                 pop.save()  
         if service['host_id']: 
             srv_host_id = service['host_id']
-        srv = monitoring_services(sonata_srv_id=service['sonata_srv_id'], name=service['name'], description=service['description'], host_id=srv_host_id, user=usr, pop_id=srv_pop_id)
+        srv = monitoring_services(sonata_srv_id=service['sonata_srv_id'], name=service['name'], description=service['description'], host_id=srv_host_id, pop_id=srv_pop_id)
         srv.save()
+        if isinstance(usr, monitoring_users):
+            srv.user.add(usr)
+        if isinstance(dev, monitoring_users):
+            srv.user.add(dev)
+        srv.save()
+
         for f in functions:
             fnc_pop_id = f['pop_id']
             pop = monitoring_pops.objects.all().filter(sonata_pop_id=fnc_pop_id)   
