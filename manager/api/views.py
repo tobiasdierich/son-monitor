@@ -390,6 +390,15 @@ class SntServicesPerUserList(generics.ListAPIView):
         userid  = self.kwargs['usrID']
         return queryset.filter(user__sonata_userid=userid)
 
+class SntServiceList(generics.ListAPIView):
+    #queryset = monitoring_services.objects.all().filter(self.kwargs['usrID'])
+    serializer_class = SntServicesSerializer
+
+    def get_queryset(self):
+        queryset = monitoring_services.objects.all()
+        srvid  = self.kwargs['srvID']
+        return queryset.filter(sonata_srv_id=srvid)
+
 class SntServicesList(generics.ListCreateAPIView):
     queryset = monitoring_services.objects.all()
     serializer_class = SntServicesSerializer
