@@ -373,6 +373,21 @@ class SntPromSrvPerPOPConf(generics.ListAPIView):
         print rsp
         return Response({'config':rsp}, status=status.HTTP_200_OK)
 
+class SntUserList(generics.ListAPIView):
+    def get_queryset(self):
+        queryset = monitoring_users.objects.all()
+        userid  = self.kwargs['pk']
+        print userid
+        return queryset.filter(pk=userid)
+
+class SntUserPerTypeList(generics.ListAPIView):
+    #queryset = monitoring_users.objects.all().filter(component=self.kwargs['pk'])
+    serializer_class = SntUserSerializer
+    def get_queryset(self):
+        queryset = monitoring_users.objects.all()
+        user_type  = self.kwargs['type']
+        return queryset.filter(type=user_type)
+
 class SntUsersList(generics.ListCreateAPIView):
     queryset = monitoring_users.objects.all()
     serializer_class = SntUserSerializer
