@@ -374,6 +374,7 @@ class SntPromSrvPerPOPConf(generics.ListAPIView):
         return Response({'config':rsp}, status=status.HTTP_200_OK)
 
 class SntUserList(generics.ListAPIView):
+    serializer_class = SntUserSerializer
     def get_queryset(self):
         queryset = monitoring_users.objects.all()
         userid  = self.kwargs['pk']
