@@ -75,7 +75,7 @@ class emailNotifier():
                     users = self.getUsers(notif['serviceID'])
                     emails=[]
                     for u in users:
-                        mail = mailNotf.getEMails(str(u))
+                        mail = self.getEMails(str(u))
                         if mail != '':
                             emails.append(mail)
                     receivers = emails
