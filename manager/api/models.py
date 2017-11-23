@@ -117,7 +117,7 @@ class monitoring_users(models.Model):
     mobile = models.DecimalField(max_digits=13, decimal_places=0, null=True, blank=True)
     type = models.CharField(max_length=60, choices=USR_TYPES, null=True)
     sonata_userid = models.CharField(max_length=60, null=True, blank=True)
-    created = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(default=timezone.now, null=True)
 
     class Meta:
         db_table = "monitoring_users"
