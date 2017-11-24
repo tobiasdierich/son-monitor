@@ -110,11 +110,14 @@ class monitoring_pops(models.Model):
         return u'%s %s %s' % (self.name, self.prom_url, self.sonata_pop_id, self.sonata_sp_id)
 
 class monitoring_users(models.Model):
+    USR_TYPES = (('cst', 'customer'), ('dev', 'developer'), ('admin', "admin"),)
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
-    email = models.EmailField(blank=True)
-    sonata_userid = models.CharField(max_length=60)
-    created = models.DateTimeField(default=timezone.now)
+    email = models.EmailField(blank=True, null=True)
+    mobile = models.DecimalField(max_digits=13, decimal_places=0, null=True, blank=True)
+    type = models.CharField(max_length=60, choices=USR_TYPES, null=True)
+    sonata_userid = models.CharField(max_length=60, null=True, blank=True)
+    created = models.DateTimeField(default=timezone.now, null=True)
 
     class Meta:
         db_table = "monitoring_users"
@@ -125,7 +128,7 @@ class monitoring_users(models.Model):
         return u'%s %s %s' % (self.first_name, self.last_name, self.sonata_userid)
 
 class monitoring_services(models.Model):
-    user = models.ForeignKey(monitoring_users)
+    user = models.ManyToManyField(monitoring_users)
     pop_id = models.CharField(max_length=60, blank=True)
     host_id = models.CharField(max_length=60, blank=True)
     name = models.CharField(max_length=30, blank=True)

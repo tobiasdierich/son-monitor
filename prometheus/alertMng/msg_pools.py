@@ -39,14 +39,14 @@ class msgs(object):
         self.queue=[]
 
     
-    def addQueueMsg(self,obj,columns):
-        self.queue.append(self.list2obj(obj,columns))
+    def addQueueMsg(self,obj):
+        self.queue.append(obj)
     
-    def addEmailMsg(self,obj,columns):
-        self.email.append(self.list2obj(obj,columns))
+    def addEmailMsg(self,obj):
+        self.email.append(obj)
          
-    def addSmsMsg(self,obj,columns):
-        self.sms.append(self.list2obj(obj,columns))
+    def addSmsMsg(self,obj):
+        self.sms.append(obj)
         
     def getQueueMsgs(self):
         return self.queue

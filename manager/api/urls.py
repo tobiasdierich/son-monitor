@@ -7,11 +7,14 @@ urlpatterns2 = [
     
     url(r'^api/v1/users$', views.SntUsersList.as_view()),
 	url(r'^api/v1/users/(?P<pk>[0-9]+)/$', views.SntUsersDetail.as_view()),
+	url(r'^api/v1/users/type/(?P<type>[^/]+)/$', views.SntUserPerTypeList.as_view()),
+	url(r'^api/v1/user/(?P<pk>[0-9]+)/$', views.SntUserList.as_view()),
 
 	url(r'^api/v1/services$', views.SntServicesList.as_view()),
 	url(r'^api/v1/services/user/(?P<usrID>[^/]+)/$', views.SntServicesPerUserList.as_view()),
     url(r'^api/v1/services/(?P<sonata_srv_id>[^/]+)/$', views.SntServicesDetail.as_view()),
 	url(r'^api/v1/service/new$', views.SntNewServiceConf.as_view()),
+	url(r'^api/v1/service/(?P<srvID>[^/]+)/$', views.SntServiceList.as_view()),
     #url(r'^api/v1/serviceconf$', views.SntServiceConfList.as_view()),
 
 	url(r'^api/v1/functions$', views.SntFunctionsList.as_view()),

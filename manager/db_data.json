@@ -19,35 +19,5 @@
     "fields": {
       "type": "sms"
     }
-  },
-  {
-    "model": "api.monitoring_users",
-    "pk": 1,
-    "fields": {
-      "first_name": "Panos",
-      "last_name": "Karkazis",
-      "email":"pkarkazis@synelixis.com",
-      "sonata_userid": "admin"
-    }
-  },
-  {
-    "model": "api.monitoring_users",
-    "pk": 2,
-    "fields": {
-      "first_name": "Felipe",
-      "last_name": "Vincens",
-      "email":"felipe.vincens@atos.com",
-      "sonata_userid": "sp_admin"
-    }
-  },
-  {
-    "model": "api.monitoring_users",
-    "pk": 3,
-    "fields": {
-      "first_name": "",
-      "last_name": "",
-      "email":"system@system.com",
-      "sonata_userid": "system"
-    }
   }
 ]
