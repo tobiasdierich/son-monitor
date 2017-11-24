@@ -118,7 +118,7 @@ def smsConsumer(pool_):
 def ns_exists(serv_id):
         mails=[]
         try:
-            url = mon_manager+'/api/v1/service/'+serv_id+'/'
+            url = 'http://manager:8000'/api/v1/service/'+serv_id+'/'
             print url
             req = urllib2.Request(url)
             req.add_header('Content-Type','application/json')        
