@@ -43,10 +43,10 @@ class msgs(object):
         self.queue.append(obj)
     
     def addEmailMsg(self,obj):
-        self.email.append(obj))
+        self.email.append(obj)
          
     def addSmsMsg(self,obj):
-        self.sms.append(obj))
+        self.sms.append(obj)
         
     def getQueueMsgs(self):
         return self.queue
