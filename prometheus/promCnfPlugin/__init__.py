@@ -79,7 +79,7 @@ def api_rules():
 @app.route('/prometheus/rules/<srv_id>', methods=['GET', 'DELETE'])
 def api_rules_per_srv(srv_id):
     if request.method == 'DELETE':
-        fname = promPath + 'rules/' + srv_id.strip() + '.rules'
+        fname = promPath + 'rules/' + srv_id.strip() + '.yml'
         if os.path.isfile(fname):
             os.remove(fname)
             with open(promPath + 'prometheus.yml', 'r') as conf_file:
@@ -105,7 +105,7 @@ def api_rules_per_srv(srv_id):
         return resp
 
     elif request.method == 'GET':
-        fname = promPath + 'rules/' + srv_id.strip() + '.rules'
+        fname = promPath + 'rules/' + srv_id.strip() + '.yml'
         if os.path.isfile(fname):
             with open(fname, 'r') as conf_file:
                 conf = yaml.load(conf_file)
