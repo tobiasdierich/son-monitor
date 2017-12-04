@@ -101,17 +101,17 @@ class fileBuilder(object):
 
     def buildConf(self):
         resp={}
-        with open(self.file_name+'.tmp', 'w') as yaml_file:
+        with open(self.prometheusPth+self.file_name+'.tmp', 'w') as yaml_file:
             yaml.safe_dump(self.configuration, yaml_file, default_flow_style=False)
-        rs = self.validateConfig(self.file_name+'.tmp')
+        rs = self.validateConfig(self.prometheusPth+self.file_name+'.tmp')
         resp['report']=rs['message']
         resp['status'] = 'FAILED'
         resp['prom_reboot'] = None
         if rs['status'] == 'SUCCESS':
-            if os.path.exists(self.file_name):
-                copyfile(self.file_name, self.file_name+'.backup')
-            if os.path.exists(self.file_name+'.tmp'):
-                copyfile(self.file_name+'.tmp', self.file_name)
+            if os.path.exists(self.prometheusPth+self.file_name):
+                copyfile(self.prometheusPth+self.file_name, self.prometheusPth+self.file_name+'.backup')
+            if os.path.exists(self.prometheusPth+self.file_name+'.tmp'):
+                copyfile(self.prometheusPth+self.file_name+'.tmp', self.prometheusPth+self.file_name)
                 resp['prom_reboot'] = self.reloadServer()
                 if resp['prom_reboot'] == 'SUCCESS':
                     resp['status'] = 'SUCCESS'
