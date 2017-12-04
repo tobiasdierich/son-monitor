@@ -13,5 +13,5 @@ service postfix start && \
 /etc/init.d/postfix force-reload
 
 python /opt/Monitoring/prometheus/alertMng/alertmanager.py &
-/opt/Monitoring/prometheus/remote_storage_adapter -influxdb-url=http://influx:8086/ -influxdb.database=prometheus -influxdb.retention-policy=default
+/opt/Monitoring/prometheus/remote_storage_adapter -influxdb-url=http://influx:8086/ -influxdb.database=prometheus -influxdb.retention-policy=default &
 /opt/Monitoring/prometheus/prometheus --config.file=/opt/Monitoring/prometheus/prometheus.yml
