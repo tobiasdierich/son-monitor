@@ -118,7 +118,7 @@ class fileBuilder(object):
         return resp
 
     def validateConfig(self,file):
-        p = subprocess.Popen(['./promtool', 'check-config', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen([self.prometheusPth+'promtool', 'check-config', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, status = p.communicate()
         rc = p.returncode
         msg={}
