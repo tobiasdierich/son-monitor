@@ -87,7 +87,7 @@ class fileBuilder(object):
         
     def validate(self,file):
         checktool = '.'+self.prometheusPth+'promtool'
-        p = subprocess.Popen([checktool, 'check-rules', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen([checktool, 'check rules', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, status = p.communicate()
         print status
         rc = p.returncode
@@ -118,7 +118,7 @@ class fileBuilder(object):
         return resp
 
     def validateConfig(self,file):
-        p = subprocess.Popen([self.prometheusPth+'promtool', 'check-config', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen([self.prometheusPth+'promtool', 'check config', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, status = p.communicate()
         rc = p.returncode
         msg={}
