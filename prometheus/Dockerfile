@@ -17,7 +17,7 @@ mkdir -p /opt/Monitoring/prometheus/tornadoWS/logs && \
 mkdir -p /var/www/PromCnf/PromCnf/static && \
 mkdir -p /var/www/PromCnf/PromCnf/templates 
 
-COPY ./prometheus-0.17.0rc2.linux-amd64/ /opt/Monitoring/prometheus
+COPY ./prometheus-2.0.0.linux-amd64/ /opt/Monitoring/prometheus
 COPY ./sonataConf/ /opt/Monitoring/prometheus
 COPY ./alertMng/ /opt/Monitoring/prometheus/alertMng
 COPY ./tornadoWS/ /opt/Monitoring/prometheus/tornadoWS
