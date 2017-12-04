@@ -158,7 +158,21 @@ def add_job():
 
 @app.route('/prometheus/configuration/jobs', methods=['DELETE'])
 def remove_job():
-    return "Remove job"
+    job = json.loads(request.data)
+    jobName = job['jon_name']
+
+    with open(promPath + 'prometheus.yml', 'r') as conf_file:
+        config = yaml.load(conf_file)
+
+    config['scrape_configs'] = [job for job in config['scrape_configs'] if job['job_name'] != jobName]
+    rf = fileBuilder('prometheus.yml', config, promPath)
+    resp = rf.buildConf()
+
+    message = {
+        'status': 200,
+        'message': resp,
+    }
+    return jsonify(message)
 
 
 @app.errorhandler(404)
