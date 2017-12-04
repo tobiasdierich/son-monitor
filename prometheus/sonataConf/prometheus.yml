@@ -3,6 +3,12 @@ global:
   scrape_timeout: 5s
   evaluation_interval: 15s
 
+remote_write:
+  - url: "http://localhost:9201/write"
+
+remote_read:
+  - url: "http://localhost:9201/read"
+
 rule_files:
   - /opt/Monitoring/prometheus/rules/rules.yml
 
