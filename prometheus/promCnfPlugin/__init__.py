@@ -33,7 +33,6 @@ from ruleFile import fileBuilder
 
 app = Flask(__name__)
 
-global promPath
 promPath = '/opt/Monitoring/prometheus/'
 
 
@@ -188,8 +187,6 @@ def reloadServer():
 
 
 if __name__ == "__main__":
-    global promPath
-    promPath = '/opt/Monitoring/prometheus/'
     global logger
     logger = logging.getLogger('MyLogger')
     logger.setLevel(logging.DEBUG)
