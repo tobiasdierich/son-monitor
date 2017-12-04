@@ -86,8 +86,8 @@ class fileBuilder(object):
             return "RuleFile creation FAILED"
         
     def validate(self,file):
-        checktool = '.'+self.prometheusPth+'promtool'
-        p = subprocess.Popen([checktool, 'check rules', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        checktool = self.prometheusPth+'promtool'
+        p = subprocess.Popen([checktool + ' check rules "%s"', file], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, status = p.communicate()
         print status
         rc = p.returncode
@@ -118,7 +118,8 @@ class fileBuilder(object):
         return resp
 
     def validateConfig(self,file):
-        p = subprocess.Popen([self.prometheusPth+'promtool', 'check config', file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        checktool = self.prometheusPth+'promtool'
+        p = subprocess.Popen([checktool + ' check config "%s"' % file], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, status = p.communicate()
         rc = p.returncode
         msg={}
