@@ -159,7 +159,7 @@ def add_job():
 @app.route('/prometheus/configuration/jobs', methods=['DELETE'])
 def remove_job():
     job = json.loads(request.data)
-    jobName = job['jon_name']
+    jobName = job['job_name']
 
     with open(promPath + 'prometheus.yml', 'r') as conf_file:
         config = yaml.load(conf_file)
