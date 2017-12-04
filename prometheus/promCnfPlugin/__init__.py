@@ -141,7 +141,20 @@ def api_conf():
 
 @app.route('/prometheus/configuration/jobs', methods=['POST'])
 def add_job():
-    return "Add job"
+    job = json.loads(request.data)
+
+    with open(promPath + 'prometheus.yml', 'r') as conf_file:
+        config = yaml.load(conf_file)
+
+    config['scrape_configs'].append(job)
+    rf = fileBuilder('prometheus.yml', config, promPath)
+    resp = rf.buildConf()
+
+    message = {
+        'status': 200,
+        'message': resp,
+    }
+    return jsonify(message)
 
 
 @app.route('/prometheus/configuration/jobs', methods=['DELETE'])
