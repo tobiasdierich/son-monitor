@@ -40,13 +40,21 @@ class fileBuilder(object):
         print 'reload....'
 
     def buildRule(self, rule):
-        # TODO: Update format to v2
-        labels =''
-        rule['name'] = rule['name'].replace(':','_')
+        newRule = dict(
+            alert=rule['name'].replace(':', '_'),
+            expr=self.conditionRule(rule['condition']),
+            annotations=dict()
+        )
+
+        newRule['for'] = rule['duration']
+
+        labels = dict()
         for lb in rule['labels']:
-            labels += lb +', '        
-        rule = 'ALERT ' + rule['name'].replace (" ", "_") +'\n'+'  IF ' + self.conditionRule(rule['condition']) + '\n'+'  FOR ' + rule['duration'] + '\n'+' LABELS {'+labels[:-2]+'}'+'\n'+'  ANNOTATIONS { '+'\n'+'    summary = "'+rule['summary']+' {{$labels.instance}}",'+'\n'+'    description = "'+rule['description']+' {{ $labels.instance }} of job {{ $labels.job }}",'+'\n'+'}'+'\n'
-        return rule
+            labels[lb.split('=')[0]] = lb.split('=')[1]
+
+        newRule['labels'] = labels
+
+        return newRule
 
     def conditionRule(self, rule):
         els = rule.split(" ")
@@ -59,17 +67,24 @@ class fileBuilder(object):
         return ''.join(str(x) for x in els)
 
     def writeFile(self):
-        body = ''
-        for r in self.configuration:
-            body += self.buildRule(r)
         filename = "".join((self.prometheusPth,'rules/',self.file_name, '.yml'))
 
+        content = dict(
+            groups=[
+                dict(
+                    name=filename,
+                    rules=[]
+                )
+            ]
+        )
+
+        for r in self.configuration:
+            content['groups'][0]['rules'].append(self.buildRule(r))
+
         with open(filename, 'w') as outfile:
-            outfile.write(body)
-        #    json.dump(body, outfile)
+            yaml.dump(content, outfile, default_flow_style=False)
 
         if self.validate(filename) == 0:
-            #print "RuleFile created SUCCESSFULY"
             #add file to conf file
             with open(self.prometheusPth+'prometheus.yml', 'r') as conf_file:
                 conf = yaml.load(conf_file)
@@ -85,7 +100,7 @@ class fileBuilder(object):
             return "RuleFile created SUCCESSFULY - SERVER Reloaded"
         else:
             return "RuleFile creation FAILED"
-        
+
     def validate(self,file):
         checktool = self.prometheusPth+'promtool'
         p = subprocess.Popen([checktool + ' check rules "%s"' % file], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -126,7 +141,7 @@ class fileBuilder(object):
         msg={}
         msg['code'] = rc
         msg['message'] =  status
-        if not 'FAILED' in status:              
+        if not 'FAILED' in status:
             msg['status'] = 'SUCCESS'
         else:
             msg['status'] = 'FAILED'
