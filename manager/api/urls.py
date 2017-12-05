@@ -14,6 +14,8 @@ urlpatterns2 = [
 	url(r'^api/v1/service/new$', views.SntNewServiceConf.as_view()),
     #url(r'^api/v1/serviceconf$', views.SntServiceConfList.as_view()),
 
+	url(r'^api/v1/cloud-services', views.SntCloudServicesList.as_view()),
+
 	url(r'^api/v1/functions$', views.SntFunctionsList.as_view()),
 	#url(r'^api/v1/functions/(?P<pk>[0-9]+)/$', views.SntFunctionsDetail.as_view()),
 	url(r'^api/v1/functions/service/(?P<srvID>[^/]+)/$', views.SntFunctionsPerServiceList.as_view()),

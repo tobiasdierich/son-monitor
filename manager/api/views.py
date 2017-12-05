@@ -455,6 +455,9 @@ class SntServicesDetail(generics.DestroyAPIView):
             print 'Service ' + srvid + ' not found'
             return Response({'status': "service not found"}, status=status.HTTP_404_NOT_FOUND)
 
+class SntCloudServicesList(generics.ListAPIView):
+    queryset = monitoring_cloud_services.objects.all()
+    serializer_class = SntFunctionsSerializer
 
 class SntFunctionsList(generics.ListAPIView):
     queryset = monitoring_functions.objects.all()

@@ -82,6 +82,12 @@ class SntServicesFullSerializer(serializers.ModelSerializer):
         model = monitoring_services
         fields = ('id', 'sonata_srv_id', 'name', 'description', 'created', 'user', 'host_id','pop_id')
 
+class SntCloudServicesSerializer(serializers.ModelSerializer):
+    service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
+    class Meta:
+        model = monitoring_cloud_services
+        fields = ('id', 'sonata_cloud_service_id', 'name', 'description', 'created', 'service', 'pop_id')
+
 class SntFunctionsSerializer(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
     #service = SntServicesSerializer()
