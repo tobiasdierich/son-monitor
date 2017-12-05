@@ -14,4 +14,4 @@ service postfix start && \
 
 python /opt/Monitoring/prometheus/alertMng/alertmanager.py &
 /opt/Monitoring/prometheus/remote_storage_adapter -influxdb-url=http://influx:8086/ -influxdb.database=prometheus -influxdb.retention-policy=autogen &
-/opt/Monitoring/prometheus/prometheus --config.file=/opt/Monitoring/prometheus/prometheus.yml
+/opt/Monitoring/prometheus/prometheus --config.file=/opt/Monitoring/prometheus/prometheus.yml --web.enable-lifecycle
