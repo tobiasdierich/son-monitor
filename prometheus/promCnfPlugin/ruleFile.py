@@ -40,6 +40,7 @@ class fileBuilder(object):
         print 'reload....'
 
     def buildRule(self, rule):
+        # TODO: Update format to v2
         labels =''
         rule['name'] = rule['name'].replace(':','_')
         for lb in rule['labels']:
@@ -61,7 +62,7 @@ class fileBuilder(object):
         body = ''
         for r in self.configuration:
             body += self.buildRule(r)
-        filename = "".join((self.prometheusPth,'rules/',self.file_name, '.rules'))
+        filename = "".join((self.prometheusPth,'rules/',self.file_name, '.yml'))
 
         with open(filename, 'w') as outfile:
             outfile.write(body)
@@ -87,7 +88,7 @@ class fileBuilder(object):
         
     def validate(self,file):
         checktool = self.prometheusPth+'promtool'
-        p = subprocess.Popen([checktool + ' check rules "%s"', file], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen([checktool + ' check rules "%s"' % file], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, status = p.communicate()
         print status
         rc = p.returncode

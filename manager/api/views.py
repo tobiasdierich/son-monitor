@@ -735,7 +735,7 @@ class SntRuleconf(generics.CreateAPIView):
 
         if len(rules) > 0:
             cl = Http()
-            rsp = cl.POST('http://'+prometheus+':9089/prometheus/rules',[],json.dumps(rls))            
+            rsp = cl.POST('http://prometheus:9089/prometheus/rules',[],json.dumps(rls))
             if rsp == 200:
                 return Response({'status':"success","rules":rules_status})
             else:

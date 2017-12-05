@@ -62,7 +62,7 @@ def api_rules():
             resp.status_code = 500
             return resp
         rf = fileBuilder(srv_id, conf['rules'], promPath)
-        status = rf.writeFile();
+        status = rf.writeFile()
         message = {
             'status': 200,
             'message': status,
