@@ -159,6 +159,22 @@ class monitoring_functions(models.Model):
     def __unicode__(self):
         return u'%s %s %s' % (self.name, self.description, self.sonata_func_id)
 
+class monitoring_cloud_services(models.Model):
+    service = models.ForeignKey(monitoring_services)
+    pop_id = models.CharField(max_length=60, blank=True)
+    name = models.CharField(max_length=30, blank=True)
+    sonata_cloud_service_id = models.CharField(max_length=60, blank=True)
+    description = models.CharField(max_length=1024)
+    created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "monitoring_cloud_services"
+        ordering = ('created',)
+        managed = True
+
+    def __unicode__(self):
+        return u'%s %s %s' % (self.name, self.description, self.sonata_cloud_service_id)
+
 class monitoring_metrics(models.Model):
     function = models.ForeignKey(monitoring_functions)
     name = models.CharField(max_length=30, blank=True)
