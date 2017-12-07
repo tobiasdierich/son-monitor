@@ -455,9 +455,11 @@ class SntServicesDetail(generics.DestroyAPIView):
             print 'Service ' + srvid + ' not found'
             return Response({'status': "service not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
 class SntCloudServicesList(generics.ListAPIView):
     queryset = monitoring_cloud_services.objects.all()
     serializer_class = SntFunctionsSerializer
+
 
 class SntFunctionsList(generics.ListAPIView):
     queryset = monitoring_functions.objects.all()
@@ -591,7 +593,8 @@ class SntNewServiceConf(generics.CreateAPIView):
                                       prom_url="undefined")
                 pop.save()
             cloud_services_status = len(cloud_services)
-            css = monitoring_cloud_services(service=srv, name=cs['name'], sonata_cloud_service_id=cs['sonata_cloud_service_id'],
+            css = monitoring_cloud_services(service=srv, csd_name=cs['csd_name'], vdu_id=cs['vdu_id'],
+                                            cloud_service_record_uuid=cs['cloud_service_record_uuid'],
                                             description=cs['description'], pop_id=cs['pop_id'])
             css.save()
             for m in cs['metrics']:

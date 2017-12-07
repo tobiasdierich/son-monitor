@@ -86,7 +86,7 @@ class SntCloudServicesSerializer(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
     class Meta:
         model = monitoring_cloud_services
-        fields = ('id', 'sonata_cloud_service_id', 'name', 'description', 'created', 'service', 'pop_id')
+        fields = ('id', 'cloud_service_instance_uuid', 'cs_name', 'vdu_id', 'description', 'created', 'service', 'pop_id')
 
 class SntFunctionsSerializer(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())

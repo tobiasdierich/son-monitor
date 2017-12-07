@@ -162,8 +162,9 @@ class monitoring_functions(models.Model):
 class monitoring_cloud_services(models.Model):
     service = models.ForeignKey(monitoring_services)
     pop_id = models.CharField(max_length=60, blank=True)
-    name = models.CharField(max_length=30, blank=True)
-    sonata_cloud_service_id = models.CharField(max_length=60, blank=True)
+    csd_name = models.CharField(max_length=30, blank=True)
+    vdu_id = models.CharField(max_length=30, blank=True)
+    cloud_service_record_uuid = models.CharField(max_length=60, blank=True)
     description = models.CharField(max_length=1024)
     created = models.DateTimeField(default=timezone.now)
 
@@ -173,7 +174,7 @@ class monitoring_cloud_services(models.Model):
         managed = True
 
     def __unicode__(self):
-        return u'%s %s %s' % (self.name, self.description, self.sonata_cloud_service_id)
+        return u'%s %s %s' % (self.csd_name, self.description, self.cloud_service_record_uuid)
 
 class monitoring_metrics(models.Model):
     function = models.ForeignKey(monitoring_functions)
