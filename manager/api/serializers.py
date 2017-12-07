@@ -39,17 +39,17 @@ from django.core import serializers as core_serializers
 class SntSmtpSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = monitoring_smtp
-        fields = ('id', 'smtp_server', 'port', 'user_name', 'password', 'component', 'sec_type') 
+        fields = ('id', 'smtp_server', 'port', 'user_name', 'password', 'component', 'sec_type')
 
 class SntSmtpSerializerList(serializers.ModelSerializer):
     class Meta:
         model = monitoring_smtp
-        fields = ('id', 'smtp_server', 'port', 'user_name', 'component', 'sec_type', 'created') 
+        fields = ('id', 'smtp_server', 'port', 'user_name', 'component', 'sec_type', 'created')
 
 class SntSmtpSerializerCred(serializers.ModelSerializer):
     class Meta:
         model = monitoring_smtp
-        fields = ('id', 'password') 
+        fields = ('id', 'password')
 
 class SntSPSerializer(serializers.ModelSerializer):
     class Meta:
@@ -86,7 +86,7 @@ class SntCloudServicesSerializer(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
     class Meta:
         model = monitoring_cloud_services
-        fields = ('id', 'cloud_service_instance_uuid', 'cs_name', 'vdu_id', 'description', 'created', 'service', 'pop_id')
+        fields = ('id', 'cloud_service_record_uuid', 'csd_name', 'vdu_id', 'description', 'created', 'service', 'pop_id')
 
 class SntFunctionsSerializer(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
@@ -148,7 +148,7 @@ class SntServicesLightSerializer(serializers.ModelSerializer):
         lookup_field = 'sonata_srv_id'
 
 class SntRulesSerializer(serializers.ModelSerializer):
-    #service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all()) 
+    #service = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_services.objects.all())
     #notification_type = serializers.PrimaryKeyRelatedField(read_only=False, queryset=monitoring_notif_types.objects.all())
     service = SntServicesLightSerializer()
     notification_type = SntNotifTypeSerializer()

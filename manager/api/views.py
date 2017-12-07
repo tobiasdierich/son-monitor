@@ -458,7 +458,7 @@ class SntServicesDetail(generics.DestroyAPIView):
 
 class SntCloudServicesList(generics.ListAPIView):
     queryset = monitoring_cloud_services.objects.all()
-    serializer_class = SntFunctionsSerializer
+    serializer_class = SntCloudServicesSerializer
 
 
 class SntFunctionsList(generics.ListAPIView):
