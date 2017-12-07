@@ -28,6 +28,7 @@ partner consortium (www.sonata-nfv.eu).
 
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -458,6 +459,11 @@ class SntServicesDetail(generics.DestroyAPIView):
 
 class SntCloudServicesList(generics.ListAPIView):
     queryset = monitoring_cloud_services.objects.all()
+    serializer_class = SntCloudServicesSerializer
+
+
+class SntCloudServicesDetail(generic.DetailView):
+    model = monitoring_cloud_services
     serializer_class = SntCloudServicesSerializer
 
 
