@@ -114,12 +114,12 @@ class ProData(object):
             if len(req['labels']) == 0:
                 path = "".join(("/api/v1/query_range?query=",req['name'],"&start=",req['start'],"&end=",req['end'],"&step=",req['step'] ))
             elif len(req['labels']) == 1:
-                l='{'+req['labels'][0]['labeltag']+'="'+req['labels'][0]['labelid']+'"}'
+                l='{'+req['labels'][0]['labeltag']+self.getLabelOperator(req['labels'][0])+'"'+req['labels'][0]['labelid']+'"}'
                 path = "".join(("/api/v1/query_range?query=",req['name'],l,"&start=",req['start'],"&end=",req['end'],"&step=",req['step'] ))
             else:
                 ls = "{"
                 for lb in req['labels']:
-                    ls+=lb['labeltag']+'="'+lb['labelid']+'",'
+                    ls+=lb['labeltag']+self.getLabelOperator(lb)+'"'+lb['labelid']+'",'
                 ls = ls[:-1]
                 ls+='}'
                 path = "".join(("/api/v1/query_range?query=",req['name'],ls,"&start=",req['start'],"&end=",req['end'],"&step=",req['step'] ))
@@ -128,6 +128,12 @@ class ProData(object):
         print path
         d = self.HttpGet(self.srv_addr,self.srv_port,path)
         return d
+
+    def getLabelOperator(self, label):
+        if 'operator' in label:
+            return label['operator']
+
+        return '='
 
     def HttpGet(self, srv_addr,srv_port,path):
         httpServ = httplib.HTTPConnection(srv_addr, srv_port)
