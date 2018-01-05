@@ -68,26 +68,22 @@ class emailNotifier():
             m = self.alarmStatus(notif)
             msg = MIMEText(m['body'])
             msg.set_unixfrom('Sonata Monitoring System')
-            receivers = ['pkarkazis@synelixis.com']
-            if notif['exported_job'] == 'vm': 
-                msg['To'] = email.utils.formataddr(('Recipient', receivers))
+            if notif['exported_job'] == 'vm':
+                receivers = self.getAdminEMails()
             elif notif['exported_job'] == 'vnf':
-                if 'UserID' in notif:
-                    usr = self.getEmail(notif['UserID'])
+                if 'serviceID' in notif:
+                    users = self.getUsers(notif['serviceID'])
+                    emails=[]
+                    for u in users:
+                        mail = self.getEMails(str(u))
+                        if mail != '':
+                            emails.append(mail)
+                    receivers = emails
                 else:
-                    usr={}
-                    usr['email']='pkarkazis@synelixis.com'
-                if 'email' in usr:
-                    match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', usr['email'])
-                    if match == None:
-                        continue
-                    else:
-                        if usr['email'] == 'system@system.com':
-                            usr['email']='pkarkazis@synelixis.com'
-                        receivers = [usr['email']]
-                        msg['To'] = email.utils.formataddr(('Recipient', usr['email']))
-                else:
-                    continue   
+                    continue
+            else:
+                continue
+            msg['To'] = email.utils.formataddr(('Recipient', receivers))
             msg['From'] = email.utils.formataddr(('Monitoring server', 'monitoring@synelixis.com'))
             msg['Subject'] = 'ALERT NOTIFICATION '+ m['status'] 
             myemail['receivers']= receivers
@@ -114,17 +110,70 @@ class emailNotifier():
         except ValueError, e:
             return {'error':str(e)}
 
-    def getEmail(self, userid):
+    def getUsers(self, serviceID):
+        us=[]
         try:
-            url = self.mon_manager+'/api/v1/user/'+userid
+            url = self.mon_manager+'/api/v1/service/'+serviceID+"/"
             print url
             req = urllib2.Request(url)
-            req.add_header('Content-Type','application/json')
-        
+            req.add_header('Content-Type','application/json')        
             response=urllib2.urlopen(req, timeout = 3)
             code = response.code
             data = json.loads(response.read())
-            return data
+            if data['count'] > 0:
+                srv = data['results'][0]
+                if 'user' in srv:
+                    us = srv['user']
+                    
+            print json.dumps(us)
+            return us
+    
+        except urllib2.HTTPError, e:
+            return {'error':str(e)}
+        except urllib2.URLError, e:
+            return {'error':str(e)}
+        except ValueError, e:
+            return {'error':str(e)}
+        
+    def getEMails(self, usrID):
+        mail=''
+        try:
+            url = self.mon_manager+'/api/v1/user/'+usrID+"/"
+            print url
+            req = urllib2.Request(url)
+            req.add_header('Content-Type','application/json')        
+            response=urllib2.urlopen(req, timeout = 3)
+            code = response.code
+            data = json.loads(response.read())
+            if data['count'] > 0:
+                user = data['results'][0]
+                if 'email' in user:
+                    mail = user['email']
+            return mail
+    
+        except urllib2.HTTPError, e:
+            return {'error':str(e)}
+        except urllib2.URLError, e:
+            return {'error':str(e)}
+        except ValueError, e:
+            return {'error':str(e)}
+        
+    def getAdminEMails(self):
+        mails=[]
+        try:
+            url = self.mon_manager+'/api/v1/users/type/admin/'
+            print url
+            req = urllib2.Request(url)
+            req.add_header('Content-Type','application/json')        
+            response=urllib2.urlopen(req, timeout = 3)
+            code = response.code
+            data = json.loads(response.read())
+            if data['count'] > 0:
+                for admin in data['results']:
+                    if 'email' in admin:
+                        if admin['email'] != '':
+                            mails.append(admin['email'])    
+            return mails
     
         except urllib2.HTTPError, e:
             return {'error':str(e)}

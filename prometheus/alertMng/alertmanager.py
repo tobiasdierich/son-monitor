@@ -50,7 +50,13 @@ def checkServPlatform(time_window):
         print 'Active Alerts'
         for serie in resp['series']:
             for rec in serie['values']:
-                pool.addQueueMsg(rec,serie['columns'])
+                obj = pool.list2obj(rec,serie['columns'])
+                print obj
+                if 'serviceID' in obj:
+                    if ns_exists(obj['serviceID']):
+                        pool.addQueueMsg(obj)
+                else:
+                    pool.addQueueMsg(obj)
         
     
     resp = cl.query('select * from ALERTS where alertstate=\'pending\' and value=0 and time > now() - '+ time_window)
@@ -58,17 +64,28 @@ def checkServPlatform(time_window):
         print 'Event Started'
         for serie in resp['series']:
             for rec in serie['values']:
-                pool.addEmailMsg(rec,serie['columns'])
-                pool.addSmsMsg(rec,serie['columns'])
-                print(rec)
+                obj = pool.list2obj(rec,serie['columns'])
+                if 'serviceID' in obj:
+                    if ns_exists(obj['serviceID']):
+                        pool.addEmailMsg(obj)
+                        pool.addSmsMsg(obj)
+                else:
+                    pool.addEmailMsg(obj)
+                    pool.addSmsMsg(obj)
     
     resp = cl.query('select * from ALERTS where alertstate=\'firing\' and value=0 and time > now() - '+ time_window)
     if 'series' in resp:
         print 'Event Stoped'
         for serie in resp['series']:
             for rec in serie['values']:
-                pool.addEmailMsg(rec,serie['columns'])
-                pool.addSmsMsg(rec,serie['columns'])
+                obj = pool.list2obj(rec,serie['columns'])
+                if 'serviceID' in obj:
+                    if ns_exists(obj['serviceID']):
+                        pool.addEmailMsg(obj)
+                        pool.addSmsMsg(obj)
+                else:
+                    pool.addEmailMsg(obj)
+                    pool.addSmsMsg(obj)
         
 def checkAlerts():
     print(time.ctime())
@@ -97,6 +114,28 @@ def smsConsumer(pool_):
             del pool_[0]
             print 'send sms : ' + json.dumps(msg) +' remain: '+ "".join(str(len(pool_)))
         time.sleep(0.2)
+
+def ns_exists(serv_id):
+        mails=[]
+        try:
+            url = 'http://manager:8000/api/v1/service/'+serv_id+'/'
+            print url
+            req = urllib2.Request(url)
+            req.add_header('Content-Type','application/json')        
+            response=urllib2.urlopen(req, timeout = 3)
+            code = response.code
+            data = json.loads(response.read())
+            if data['count'] > 0:    
+                return True
+            else:
+                return False
+
+        except urllib2.HTTPError, e:
+            return {'error':str(e)}
+        except urllib2.URLError, e:
+            return {'error':str(e)}
+        except ValueError, e:
+            return {'error':str(e)}
         
 def rabbitConsumer(pool_):
     try:
