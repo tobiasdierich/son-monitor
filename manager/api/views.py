@@ -626,7 +626,7 @@ class SntNewServiceConf(generics.CreateAPIView):
         if service['host_id']:
             srv_host_id = service['host_id']
         srv = monitoring_services(sonata_srv_id=service['sonata_srv_id'], name=service['name'],
-                                  description=service['description'], host_id=srv_host_id, user=usr, pop_id=srv_pop_id)
+                                  description=service['description'], host_id=srv_host_id, pop_id=srv_pop_id)
         srv.save()
         if isinstance(usr, monitoring_users):
             srv.user.add(usr)
